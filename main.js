@@ -1814,20 +1814,18 @@ if (!lock) {
   });
 }
 
-ipcMain.handle('auth:start', async () => {
-  // Abre o navegador com a URL do Discord OAuth
-  const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(DISCORD_SCOPES)}`;
-  shell.openExternal(authUrl);
-  return { success: true };
+ipcMain.handle('backend:getUsers', async () => {
+  const res = await fetch('http://localhost:3000/users');
+  return res.json();
 });
 
-ipcMain.handle('auth:getUser', async () => {
-  return currentUser;
-});
-
-ipcMain.handle('auth:logout', async () => {
-  currentUser = null;
-  return { success: true };
+ipcMain.handle('backend:addUser', async (event, user) => {
+  const res = await fetch('http://localhost:3000/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(user)
+  });
+  return res.json();
 });
 
 ipcMain.handle('close-app', async () => {
@@ -1863,14 +1861,6 @@ ipcMain.handle('get-extension-status', async () => {
   } catch (e) {
     return { loaded: false, error: e.message };
   }
-});
-
-ipcMain.handle('api:get', async (_event, _endpoint) => {
-  return null;
-});
-
-ipcMain.handle('api:post', async (_event, _endpoint, _data) => {
-  return null;
 });
 
 ipcMain.handle('open-external', async (event, url) => {

@@ -3,9 +3,8 @@ const { contextBridge, ipcRenderer } = require('electron');
 // Expõe API segura pro renderer
 contextBridge.exposeInMainWorld('electronAPI', {
   // Auth
-  startAuth: () => ipcRenderer.invoke('auth:start'),
-  getUser: () => ipcRenderer.invoke('auth:getUser'),
-  logout: () => ipcRenderer.invoke('auth:logout'),
+  getUsers: () => ipcRenderer.invoke('backend:getUsers'),
+  addUser: (user) => ipcRenderer.invoke('backend:addUser', user),
 
   // Utils
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
