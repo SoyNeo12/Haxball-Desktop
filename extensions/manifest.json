@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "HaxBall Desktop",
+  "version": "1.2.3",
+  "description": "Extensao oficial do HaxBall Desktop",
+
+  "permissions": [],
+
+  "host_permissions": ["*://www.haxball.com/*", "*://haxball.com/*", "*://html5.haxball.com/*", "*://localhost/*"],
+
+  "content_scripts": [
+    {
+      "matches": ["*://www.haxball.com/*", "*://haxball.com/*", "*://html5.haxball.com/*"],
+      "js": [
+        "config.js",
+        "core.js",
+        "welcome.js",
+        "styles.js",
+        "themes.js",
+        "header.js",
+        "settings.js",
+        "stretched.js",
+        "discord.js",
+        "verified.js",
+        "vip.js",
+        "friends.js",
+        "teams.js",
+        "roomlist.js",
+        "chatlinks.js",
+        "commands.js",
+        "hideui.js",
+        "quickavatar.js",
+        "hosttoken.js",
+        "leaveroom.js",
+        "translate.js",
+        "ads.js",
+        "security.js",
+        "autoupdate.js",
+        "background.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": ["payload_generated.js"],
+      "matches": ["*://www.haxball.com/*", "*://haxball.com/*", "*://html5.haxball.com/*"]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "haxball-desktop",
+  "version": "1.0.0",
+  "description": "HaxBall Desktop - Versão Electron",
+  "homepage": "https://discord.gg/EVqUSFb4CZ",
+  "main": "main.js",
+  "author": {
+    "name": "Samuel",
+    "email": "unknown@email.com"
+  },
+  "build": {
+    "appId": "com.haxballbr.desktop",
+    "productName": "Haxball Desktop",
+    "linux": {
+      "target": [
+        "deb"
+      ],
+      "category": "Utility",
+      "maintainer": "Samuel <unknown@email.com>"
+    }
+  },
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^40.1.0",
+    "electron-builder": "^26.7.0"
+  },
+  "dependencies": {
+    "https": "^1.0.0",
+    "pg": "^8.18.0"
+  }
+}
