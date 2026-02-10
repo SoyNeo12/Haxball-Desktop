@@ -14,7 +14,7 @@ const crypto = require('crypto');
 const APP_VERSION = app.getVersion() || '1.0.0';
 
 // Define userData path único por versão para evitar conflitos
-const userDataPath = path.join(app.getPath('appData'), 'HaxBall Desktop', APP_VERSION);
+const userDataPath = path.join(app.getPath('appData'), 'haxball-app', APP_VERSION);
 app.setPath('userData', userDataPath);
 
 console.log('[APP] Versão:', APP_VERSION);
@@ -25,12 +25,6 @@ app.disableHardwareAcceleration();
 
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
 app.commandLine.appendSwitch('disable-background-timer-throttling');
-
-// FIX CORS - Private Network Access
-app.commandLine.appendSwitch(
-  'disable-features',
-  'PrivateNetworkAccessSendPreflights,PrivateNetworkAccessRespectPreflightResults,BlockInsecurePrivateNetworkRequests'
-);
 
 let mainWindow = null;
 let server = null;
