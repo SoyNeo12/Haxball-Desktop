@@ -63,10 +63,6 @@ function onDomReady(callback) {
         }\
         #custom-header #room-link-btn:hover { background: var(--theme-bg-hover, #333); }\
         #custom-header .header-right { flex: 1; display: flex; justify-content: flex-end; gap: 8px; }\
-        #custom-header #discord-btn {\
-            background: transparent; border: none; color: var(--theme-text-muted, #666); cursor: pointer; padding: 4px; display: flex;\
-        }\
-        #custom-header #discord-btn:hover { color: #5865F2; }\
         #custom-header #lang-btn {\
             background: transparent; border: none; color: var(--theme-text-muted, #666); cursor: pointer; padding: 4px; display: flex; position: relative;\
         }\
@@ -82,11 +78,6 @@ function onDomReady(callback) {
         }\
         #lang-dropdown .lang-item:hover { background: var(--theme-bg-hover, #333); }\
         #lang-dropdown .lang-item.active { color: #3B82F6; }\
-        #custom-header #ghost-mode-btn {\
-            background: transparent; border: none; color: var(--theme-text-muted, #666); cursor: pointer; padding: 4px; display: flex;\
-        }\
-        #custom-header #ghost-mode-btn:hover { color: var(--theme-text-primary, #fff); }\
-        #custom-header #ghost-mode-btn.active { color: #8b5cf6; }\
         #custom-header #hide-header-btn {\
             background: transparent; border: none; color: var(--theme-text-muted, #666); cursor: pointer; padding: 4px; display: flex;\
         }\
@@ -281,12 +272,6 @@ function onDomReady(callback) {
                 <button id="lang-btn" title="Idioma">\
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>\
                 </button>\
-                <button id="discord-btn" title="Discord">\
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>\
-                </button>\
-                <button id="ghost-mode-btn" data-translate-title="Modo Anônimo">\
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 10h.01M15 10h.01M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"/></svg>\
-                </button>\
                 <button id="hide-header-btn" data-translate-title="Esconder header">\
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>\
                 </button>\
@@ -329,12 +314,6 @@ function onDomReady(callback) {
       if (placeholderKey) input.placeholder = t(placeholderKey);
     }
 
-    var ghostBtn = document.getElementById('ghost-mode-btn');
-    if (ghostBtn) {
-      var titleKey = ghostBtn.getAttribute('data-translate-title');
-      if (titleKey) ghostBtn.title = t(titleKey);
-    }
-
     var hideBtn = document.getElementById('hide-header-btn');
     if (hideBtn) {
       var titleKey2 = hideBtn.getAttribute('data-translate-title');
@@ -345,13 +324,6 @@ function onDomReady(callback) {
   function setupHeaderEvents(header, showBtn) {
     var codeRegex = /^[a-zA-Z0-9_-]{8,15}$/;
     var urlRegex = /^(https?:\/\/)?(www\.)?haxball\.com\/play\?c=([a-zA-Z0-9_-]{8,15})$/;
-
-    // Verifica se modo anônimo está ativo
-    var isGhostMode = localStorage.getItem('ghost_mode') === 'true';
-    var ghostBtn = document.getElementById('ghost-mode-btn');
-    if (ghostBtn && isGhostMode) {
-      ghostBtn.classList.add('active');
-    }
 
     function goToRoom() {
       var input = document.getElementById('room-link-input');
@@ -407,40 +379,10 @@ function onDomReady(callback) {
       updateLayout(true);
     }
 
-    function toggleGhostMode() {
-      var newMode = !isGhostMode;
-      localStorage.setItem('ghost_mode', newMode.toString());
-
-      // Atualiza visual do botão
-      if (newMode) {
-        ghostBtn.classList.add('active');
-      } else {
-        ghostBtn.classList.remove('active');
-      }
-
-      // Recarrega a página para aplicar o modo
-      window.location.reload();
-    }
-
     document.getElementById('room-link-btn').addEventListener('click', goToRoom);
     document.getElementById('room-link-input').addEventListener('keypress', function (e) {
       if (e.key === 'Enter') goToRoom();
     });
-
-    const discordBtn = document.getElementById('discord-btn');
-
-    if (discordBtn) {
-      discordBtn.addEventListener('click', () => {
-        const url = 'https://discord.gg/EVqUSFb4CZ';
-
-        if (window.electronAPI && typeof window.electronAPI.openExternal === 'function') {
-          window.electronAPI.openExternal(url);
-        } else {
-          console.warn('electronAPI no disponible todavía, usando fallback');
-          window.open(url, '_blank');
-        }
-      });
-    }
 
     // Dropdown de idiomas
     var langBtn = document.getElementById('lang-btn');
@@ -484,7 +426,6 @@ function onDomReady(callback) {
       langDropdown.style.display = 'none';
     });
     document.getElementById('hide-header-btn').addEventListener('click', hideHeader);
-    document.getElementById('ghost-mode-btn').addEventListener('click', toggleGhostMode);
     showBtn.addEventListener('click', showHeaderFn);
 
     // Atalho de teclado ' para toggle da header

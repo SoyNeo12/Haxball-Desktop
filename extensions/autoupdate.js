@@ -109,7 +109,7 @@
     });
   }
 
-  function startUpdate(updateInfo) {
+  function startUpdate(_updateInfo) {
     var buttons = document.getElementById('update-buttons');
     var progress = document.getElementById('update-progress');
     var progressBar = document.getElementById('progress-bar');

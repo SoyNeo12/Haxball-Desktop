@@ -12,41 +12,27 @@
     {
       "matches": ["*://www.haxball.com/*", "*://haxball.com/*", "*://html5.haxball.com/*"],
       "js": [
-        "config.js",
         "core.js",
+        "header.js",
+        "background.js",
         "welcome.js",
         "styles.js",
         "themes.js",
-        "header.js",
         "settings.js",
         "stretched.js",
-        "discord.js",
-        "verified.js",
-        "vip.js",
-        "friends.js",
-        "teams.js",
         "roomlist.js",
         "chatlinks.js",
         "commands.js",
         "hideui.js",
         "quickavatar.js",
-        "hosttoken.js",
         "leaveroom.js",
         "translate.js",
         "ads.js",
         "security.js",
-        "autoupdate.js",
-        "background.js"
+        "autoupdate.js"
       ],
       "run_at": "document_start",
       "all_frames": true
-    }
-  ],
-
-  "web_accessible_resources": [
-    {
-      "resources": ["payload_generated.js"],
-      "matches": ["*://www.haxball.com/*", "*://haxball.com/*", "*://html5.haxball.com/*"]
     }
   ]
 }

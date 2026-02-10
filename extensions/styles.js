@@ -1,38 +1,281 @@
 // ============================================
 // STYLES - Estilos customizados (igual Electron)
 // ============================================
-(function() {
-    // Só executa dentro do iframe do jogo
-    if (Injector.isMainFrame()) return;
+(function () {
+  // Só executa dentro do iframe do jogo
+  if (Injector.isMainFrame()) return;
 
-    // Códigos de países para bandeiras
-    var COUNTRY_CODES = [
-        'ad','ae','af','ag','ai','al','am','ao','aq','ar','as','at','au','aw','ax','az',
-        'ba','bb','bd','be','bf','bg','bh','bi','bj','bl','bm','bn','bo','bq','br','bs','bt','bv','bw','by','bz',
-        'ca','cc','cd','cf','cg','ch','ci','ck','cl','cm','cn','co','cr','cu','cv','cw','cx','cy','cz',
-        'de','dj','dk','dm','do','dz','ec','ee','eg','eh','er','es','et',
-        'fi','fj','fk','fm','fo','fr','ga','gb','gd','ge','gf','gg','gh','gi','gl','gm','gn','gp','gq','gr','gs','gt','gu','gw','gy',
-        'hk','hm','hn','hr','ht','hu','id','ie','il','im','in','io','iq','ir','is','it',
-        'je','jm','jo','jp','ke','kg','kh','ki','km','kn','kp','kr','kw','ky','kz',
-        'la','lb','lc','li','lk','lr','ls','lt','lu','lv','ly','ma','mc','md','me','mf','mg','mh','mk','ml','mm','mn','mo','mp','mq','mr','ms','mt','mu','mv','mw','mx','my','mz',
-        'na','nc','ne','nf','ng','ni','nl','no','np','nr','nu','nz','om',
-        'pa','pe','pf','pg','ph','pk','pl','pm','pn','pr','ps','pt','pw','py','qa','re','ro','rs','ru','rw',
-        'sa','sb','sc','sd','se','sg','sh','si','sj','sk','sl','sm','sn','so','sr','ss','st','sv','sx','sy','sz',
-        'tc','td','tf','tg','th','tj','tk','tl','tm','tn','to','tr','tt','tv','tw','tz',
-        'ua','ug','um','us','uy','uz','va','vc','ve','vg','vi','vn','vu','wf','ws','xk','ye','yt','za','zm','zw'
-    ];
+  // Códigos de países para bandeiras
+  var COUNTRY_CODES = [
+    'ad',
+    'ae',
+    'af',
+    'ag',
+    'ai',
+    'al',
+    'am',
+    'ao',
+    'aq',
+    'ar',
+    'as',
+    'at',
+    'au',
+    'aw',
+    'ax',
+    'az',
+    'ba',
+    'bb',
+    'bd',
+    'be',
+    'bf',
+    'bg',
+    'bh',
+    'bi',
+    'bj',
+    'bl',
+    'bm',
+    'bn',
+    'bo',
+    'bq',
+    'br',
+    'bs',
+    'bt',
+    'bv',
+    'bw',
+    'by',
+    'bz',
+    'ca',
+    'cc',
+    'cd',
+    'cf',
+    'cg',
+    'ch',
+    'ci',
+    'ck',
+    'cl',
+    'cm',
+    'cn',
+    'co',
+    'cr',
+    'cu',
+    'cv',
+    'cw',
+    'cx',
+    'cy',
+    'cz',
+    'de',
+    'dj',
+    'dk',
+    'dm',
+    'do',
+    'dz',
+    'ec',
+    'ee',
+    'eg',
+    'eh',
+    'er',
+    'es',
+    'et',
+    'fi',
+    'fj',
+    'fk',
+    'fm',
+    'fo',
+    'fr',
+    'ga',
+    'gb',
+    'gd',
+    'ge',
+    'gf',
+    'gg',
+    'gh',
+    'gi',
+    'gl',
+    'gm',
+    'gn',
+    'gp',
+    'gq',
+    'gr',
+    'gs',
+    'gt',
+    'gu',
+    'gw',
+    'gy',
+    'hk',
+    'hm',
+    'hn',
+    'hr',
+    'ht',
+    'hu',
+    'id',
+    'ie',
+    'il',
+    'im',
+    'in',
+    'io',
+    'iq',
+    'ir',
+    'is',
+    'it',
+    'je',
+    'jm',
+    'jo',
+    'jp',
+    'ke',
+    'kg',
+    'kh',
+    'ki',
+    'km',
+    'kn',
+    'kp',
+    'kr',
+    'kw',
+    'ky',
+    'kz',
+    'la',
+    'lb',
+    'lc',
+    'li',
+    'lk',
+    'lr',
+    'ls',
+    'lt',
+    'lu',
+    'lv',
+    'ly',
+    'ma',
+    'mc',
+    'md',
+    'me',
+    'mf',
+    'mg',
+    'mh',
+    'mk',
+    'ml',
+    'mm',
+    'mn',
+    'mo',
+    'mp',
+    'mq',
+    'mr',
+    'ms',
+    'mt',
+    'mu',
+    'mv',
+    'mw',
+    'mx',
+    'my',
+    'mz',
+    'na',
+    'nc',
+    'ne',
+    'nf',
+    'ng',
+    'ni',
+    'nl',
+    'no',
+    'np',
+    'nr',
+    'nu',
+    'nz',
+    'om',
+    'pa',
+    'pe',
+    'pf',
+    'pg',
+    'ph',
+    'pk',
+    'pl',
+    'pm',
+    'pn',
+    'pr',
+    'ps',
+    'pt',
+    'pw',
+    'py',
+    'qa',
+    're',
+    'ro',
+    'rs',
+    'ru',
+    'rw',
+    'sa',
+    'sb',
+    'sc',
+    'sd',
+    'se',
+    'sg',
+    'sh',
+    'si',
+    'sj',
+    'sk',
+    'sl',
+    'sm',
+    'sn',
+    'so',
+    'sr',
+    'ss',
+    'st',
+    'sv',
+    'sx',
+    'sy',
+    'sz',
+    'tc',
+    'td',
+    'tf',
+    'tg',
+    'th',
+    'tj',
+    'tk',
+    'tl',
+    'tm',
+    'tn',
+    'to',
+    'tr',
+    'tt',
+    'tv',
+    'tw',
+    'tz',
+    'ua',
+    'ug',
+    'um',
+    'us',
+    'uy',
+    'uz',
+    'va',
+    'vc',
+    've',
+    'vg',
+    'vi',
+    'vn',
+    'vu',
+    'wf',
+    'ws',
+    'xk',
+    'ye',
+    'yt',
+    'za',
+    'zm',
+    'zw'
+  ];
 
-    // Gera CSS das bandeiras
-    function generateFlagCSS() {
-        var css = '';
-        for (var i = 0; i < COUNTRY_CODES.length; i++) {
-            var code = COUNTRY_CODES[i];
-            css += '.flagico.f-' + code + ' { background-image: url("https://flagicons.lipis.dev/flags/4x3/' + code + '.svg") !important; background-size: contain !important; background-repeat: no-repeat !important; background-position: center !important; } ';
-        }
-        return css;
+  // Gera CSS das bandeiras
+  function generateFlagCSS() {
+    var css = '';
+    for (var i = 0; i < COUNTRY_CODES.length; i++) {
+      var code = COUNTRY_CODES[i];
+      css +=
+        '.flagico.f-' +
+        code +
+        ' { background-image: url("https://flagicons.lipis.dev/flags/4x3/' +
+        code +
+        '.svg") !important; background-size: contain !important; background-repeat: no-repeat !important; background-position: center !important; } ';
     }
+    return css;
+  }
 
-    var MAIN_STYLES = '\
+  var MAIN_STYLES =
+    '\
         /* Variáveis de tema - só aplica se não for tema padrão */\
         :root:not([data-theme="default"]) {\
             --theme-bg-primary: #141414;\
@@ -72,14 +315,6 @@
         html:not([data-theme="default"]) button:hover {\
             background: var(--theme-bg-hover) !important;\
         }\
-        button#discord-login-btn {\
-            background: #5865F2 !important;\
-            color: #fff !important;\
-        }\
-        button#discord-login-btn:hover {\
-            background: #4752C4 !important;\
-        }\
-        \
         /* Dialog base - cor sólida (sem blur pra não afetar FPS) */\
         html:not([data-theme="default"]) .dialog,\
         html:not([data-theme="default"]) .dialog.section {\
@@ -162,13 +397,6 @@
             color: var(--theme-text-primary) !important;\
         }\
         .dialog button:hover { background: var(--theme-bg-selected) !important; }\
-        .dialog button#discord-login-btn {\
-            background: #5865F2 !important;\
-            border: none !important;\
-            color: #fff !important;\
-        }\
-        .dialog button#discord-login-btn:hover { background: #4752C4 !important; }\
-        \
         /* Selects */\
         .dialog select, select {\
             background: var(--theme-bg-secondary) !important;\
@@ -414,12 +642,6 @@
         .choose-nickname-view .dialog button[data-hook="ok"] {\
             display: none !important;\
         }\
-        .choose-nickname-view .dialog[data-discord-setup="done"] h1,\
-        .choose-nickname-view .dialog[data-discord-setup="done"] .label-input,\
-        .choose-nickname-view .dialog[data-discord-setup="done"] button[data-hook="ok"] {\
-            display: none !important;\
-        }\
-        \
         /* Settings sidebar */\
         .settings-view .dialog {\
             overflow: visible !important;\
@@ -657,16 +879,6 @@
         .player-list-item.pro-banner:hover {\
             filter: brightness(1.1) !important;\
         }\
-        \
-        /* Tooltip do Discord - usa variáveis de tema */\
-        #discord-player-tooltip {\
-            background: var(--theme-tooltip-bg) !important;\
-            border-color: var(--theme-tooltip-border) !important;\
-        }\
-        #discord-player-tooltip span {\
-            color: var(--theme-text-primary) !important;\
-        }\
-        \
         /* Cor de admin mais escura no modo claro */\
         body[data-theme="light"] .player-list-item [style*="color: rgb(231, 185, 14)"],\
         body[data-theme="light"] .player-list-item [style*="color:#e7b90e"],\
@@ -822,11 +1034,6 @@
         html[data-theme="default"] [style*="background: #1a1a1a"] {\
             background: #2a3138 !important;\
         }\
-        /* Tooltip do Discord */\
-        html[data-theme="default"] #discord-player-tooltip {\
-            background: #1A2125 !important;\
-            border-color: #3a4148 !important;\
-        }\
         /* Lista de jogadores na sala */\
         html[data-theme="default"] .player-list-view,\
         html[data-theme="default"] .player-list-view .list {\
@@ -871,47 +1078,48 @@
         }\
     ';
 
-    // Fontes disponíveis para usuários Pro
-    var PRO_FONTS = {
-        'default': { name: 'Padrão', family: 'Space Grotesk' },
-        'roboto': { name: 'Roboto', family: 'Roboto' },
-        'poppins': { name: 'Poppins', family: 'Poppins' },
-        'montserrat': { name: 'Montserrat', family: 'Montserrat' },
-        'oswald': { name: 'Oswald', family: 'Oswald' },
-        'raleway': { name: 'Raleway', family: 'Raleway' },
-        'ubuntu': { name: 'Ubuntu', family: 'Ubuntu' },
-        'quicksand': { name: 'Quicksand', family: 'Quicksand' },
-        'comfortaa': { name: 'Comfortaa', family: 'Comfortaa' },
-        'righteous': { name: 'Righteous', family: 'Righteous' },
-        'orbitron': { name: 'Orbitron', family: 'Orbitron' },
-        'pressstart': { name: 'Press Start 2P', family: 'Press Start 2P' }
-    };
+  // Fontes disponíveis para usuários Pro
+  var PRO_FONTS = {
+    default: { name: 'Padrão', family: 'Space Grotesk' },
+    roboto: { name: 'Roboto', family: 'Roboto' },
+    poppins: { name: 'Poppins', family: 'Poppins' },
+    montserrat: { name: 'Montserrat', family: 'Montserrat' },
+    oswald: { name: 'Oswald', family: 'Oswald' },
+    raleway: { name: 'Raleway', family: 'Raleway' },
+    ubuntu: { name: 'Ubuntu', family: 'Ubuntu' },
+    quicksand: { name: 'Quicksand', family: 'Quicksand' },
+    comfortaa: { name: 'Comfortaa', family: 'Comfortaa' },
+    righteous: { name: 'Righteous', family: 'Righteous' },
+    orbitron: { name: 'Orbitron', family: 'Orbitron' },
+    pressstart: { name: 'Press Start 2P', family: 'Press Start 2P' }
+  };
 
-    // Exporta fontes globalmente
-    window.__proFonts = PRO_FONTS;
+  // Exporta fontes globalmente
+  window.__proFonts = PRO_FONTS;
 
-    function injectStyles() {
-        Injector.waitForHead().then(function(head) {
-            if (document.getElementById('haxball-custom-styles')) return;
-            
-            // Carrega todas as fontes de forma assíncrona
-            var fontLink = document.createElement('link');
-            fontLink.rel = 'stylesheet';
-            fontLink.href = 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&family=Ubuntu:wght@400;500;700&family=Quicksand:wght@400;500;600;700&family=Comfortaa:wght@400;500;600;700&family=Righteous&family=Orbitron:wght@400;500;600;700&family=Press+Start+2P&display=swap';
-            head.appendChild(fontLink);
-            
-            var style = document.createElement('style');
-            style.id = 'haxball-custom-styles';
-            style.textContent = generateFlagCSS() + MAIN_STYLES;
-            head.appendChild(style);
-            
-            Injector.log('Custom styles injected');
-        });
-    }
+  function injectStyles() {
+    Injector.waitForHead().then(function (head) {
+      if (document.getElementById('haxball-custom-styles')) return;
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', injectStyles);
-    } else {
-        injectStyles();
-    }
+      // Carrega todas as fontes de forma assíncrona
+      var fontLink = document.createElement('link');
+      fontLink.rel = 'stylesheet';
+      fontLink.href =
+        'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&family=Ubuntu:wght@400;500;700&family=Quicksand:wght@400;500;600;700&family=Comfortaa:wght@400;500;600;700&family=Righteous&family=Orbitron:wght@400;500;600;700&family=Press+Start+2P&display=swap';
+      head.appendChild(fontLink);
+
+      var style = document.createElement('style');
+      style.id = 'haxball-custom-styles';
+      style.textContent = generateFlagCSS() + MAIN_STYLES;
+      head.appendChild(style);
+
+      Injector.log('Custom styles injected');
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', injectStyles);
+  } else {
+    injectStyles();
+  }
 })();
