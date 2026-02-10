@@ -2,3 +2,7 @@
 dist/
 node_modules
 package-lock.json
+game-min-original.backup.js
+game-min.enc
+game-min.jsc
+game.enc

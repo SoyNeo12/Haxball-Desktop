@@ -1,6 +1,3 @@
-// ============================================
-// HEADER - Barra customizada com link de sala
-// ============================================
 function onDomReady(callback) {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', callback);
@@ -95,7 +92,7 @@ function onDomReady(callback) {
 
   onDomReady(function () {
     // Desabilita tradução automática do Google
-    var noTranslate = document.createElement('meta');
+    let noTranslate = document.createElement('meta');
     noTranslate.name = 'google';
     noTranslate.content = 'notranslate';
     document.head.appendChild(noTranslate);
@@ -105,7 +102,7 @@ function onDomReady(callback) {
     document.documentElement.setAttribute('translate', 'no');
 
     // Carrega fonte Space Grotesk na página principal
-    var fontLink = document.createElement('link');
+    let fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
     fontLink.href = 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap';
     document.head.appendChild(fontLink);
@@ -298,7 +295,6 @@ function onDomReady(callback) {
     var lang = localStorage.getItem('haxball_language') || 'pt';
     var translations = {
       'Cole o link da sala aqui...': { pt: 'Cole o link da sala aqui...', es: 'Pega el enlace de la sala aquí...' },
-      'Modo Anônimo': { pt: 'Modo Anônimo', es: 'Modo Anónimo' },
       'Esconder header': { pt: 'Esconder header', es: 'Ocultar header' }
     };
 

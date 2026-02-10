@@ -1,8 +1,8 @@
 const { app, BrowserWindow, session, shell, ipcMain, globalShortcut } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const https = require('https');
 
 // const __hxdNoop = () => {};
 // console.log = __hxdNoop;
@@ -11,7 +11,7 @@ const https = require('https');
 // console.info = __hxdNoop;
 
 // Pega versão do package.json ou do app
-const APP_VERSION = app.getVersion() || '1.2.3';
+const APP_VERSION = app.getVersion() || '1.0.0';
 
 // Define userData path único por versão para evitar conflitos
 const userDataPath = path.join(app.getPath('appData'), 'HaxBall Desktop', APP_VERSION);
@@ -20,25 +20,13 @@ app.setPath('userData', userDataPath);
 console.log('[APP] Versão:', APP_VERSION);
 console.log('[APP] UserData Path:', userDataPath);
 
-const API_URL = 'https://gqyvzdqstfgoxwjrxbnl.supabase.co/functions/v1/api';
-const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxeXZ6ZHFzdGZnb3h3anJ4Ym5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg3Njg1MzksImV4cCI6MjA4NDM0NDUzOX0.38cRl586HYUVU6ONlKR1kbpIAU99XzQnXmH-X2M84ts';
-const SUPABASE_HEADERS = {
-  apikey: SUPABASE_ANON_KEY,
-  Authorization: `Bearer ${SUPABASE_ANON_KEY}`
-};
-
-// ============================================
 // FLAGS DE PERFORMANCE
-// ============================================
 app.disableHardwareAcceleration();
 
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
 app.commandLine.appendSwitch('disable-background-timer-throttling');
 
-// ============================================
 // FIX CORS - Private Network Access
-// ============================================
 app.commandLine.appendSwitch(
   'disable-features',
   'PrivateNetworkAccessSendPreflights,PrivateNetworkAccessRespectPreflightResults,BlockInsecurePrivateNetworkRequests'
@@ -47,6 +35,8 @@ app.commandLine.appendSwitch(
 let mainWindow = null;
 let server = null;
 let currentZoomPercent = 100;
+
+const isWindows = process.platform === 'win32';
 
 // NOVO: Extração e carregamento de extensões melhorado
 function getExtensionPath() {
@@ -226,378 +216,9 @@ function deriveIV(filename) {
     .digest();
 }
 
-// Descriptografa o game.enc em memória
-function decryptGameCode(extPath) {
-  var encPath = path.join(extPath, 'game.enc');
-  var plainPath = path.join(extPath, 'game-min-original.js');
-
-  // Se existe arquivo criptografado, usa ele
-  if (fs.existsSync(encPath)) {
-    try {
-      var encData = fs.readFileSync(encPath, 'utf8');
-      var encrypted = Buffer.from(encData, 'base64');
-      var key = deriveKey();
-      var iv = deriveIV('game-min-original.js');
-      var decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-      var decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
-      return decrypted.toString('utf8');
-    } catch (e) {
-      // Erro silencioso
-    }
-  }
-
-  // Fallback: usa arquivo plain (dev mode)
-  if (fs.existsSync(plainPath)) {
-    return fs.readFileSync(plainPath, 'utf8');
-  }
-
-  return null;
-}
-
-// ============================================
-// PROTEÇÃO HARDCORE - Múltiplas camadas
-// ============================================
-function generateProtectedLoader(code) {
-  // Gera nomes de variáveis aleatórios
-  var chars = 'abcdefghijklmnopqrstuvwxyz';
-  function rv() {
-    var r = '_';
-    for (var j = 0; j < 6; j++) r += chars[Math.floor(Math.random() * 26)];
-    return r;
-  }
-
-  // Gera chave XOR aleatória (muda a cada request!)
-  var xorKey = Math.floor(Math.random() * 200) + 50;
-
-  // 1. Aplica XOR em cada byte e converte pra string em chunks
-  var xoredStr = '';
-  for (var i = 0; i < code.length; i++) {
-    xoredStr += String.fromCharCode(code.charCodeAt(i) ^ xorKey);
-  }
-
-  // 2. Converte pra base64
-  var b64 = Buffer.from(xoredStr, 'binary').toString('base64');
-
-  // 3. Divide em chunks pequenos e embaralha a ordem
-  var chunkSize = 3000;
-  var chunks = [];
-  for (var i = 0; i < b64.length; i += chunkSize) {
-    chunks.push({ idx: chunks.length, data: b64.slice(i, i + chunkSize) });
-  }
-
-  // Embaralha os chunks
-  var shuffled = chunks.slice();
-  for (var i = shuffled.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var temp = shuffled[i];
-    shuffled[i] = shuffled[j];
-    shuffled[j] = temp;
-  }
-
-  // Gera variáveis
-  var vKey = rv(),
-    vResult = rv(),
-    vI = rv();
-  var vB64 = rv(),
-    vXored = rv(),
-    vEl = rv();
-  var vOrder = rv(),
-    vChunks = rv();
-
-  // Monta o array de chunks embaralhados com índices
-  var chunksCode = shuffled
-    .map(function (c) {
-      return '[' + c.idx + ',"' + c.data + '"]';
-    })
-    .join(',');
-
-  // Gera números ofuscados
-  function obfNum(n) {
-    var a = Math.floor(Math.random() * 1000);
-    return '(' + (n + a) + '-' + a + ')';
-  }
-
-  // Loader com múltiplas camadas de proteção
-  var loader =
-    '(function(){' +
-    // Dados embaralhados
-    'var ' +
-    vChunks +
-    '=[' +
-    chunksCode +
-    '];' +
-    // Reordena chunks
-    'var ' +
-    vOrder +
-    '=new Array(' +
-    vChunks +
-    '.length);' +
-    'for(var ' +
-    vI +
-    '=0;' +
-    vI +
-    '<' +
-    vChunks +
-    '.length;' +
-    vI +
-    '++){' +
-    vOrder +
-    '[' +
-    vChunks +
-    '[' +
-    vI +
-    '][0]]=' +
-    vChunks +
-    '[' +
-    vI +
-    '][1];' +
-    '}' +
-    // Junta chunks
-    'var ' +
-    vB64 +
-    '=' +
-    vOrder +
-    '["join"]("");' +
-    // Decode base64
-    'var ' +
-    vXored +
-    '=atob(' +
-    vB64 +
-    ');' +
-    // Chave XOR (ofuscada)
-    'var ' +
-    vKey +
-    '=' +
-    obfNum(xorKey) +
-    ';' +
-    // Aplica XOR reverso
-    'var ' +
-    vResult +
-    '="";' +
-    'for(var ' +
-    vI +
-    '=0;' +
-    vI +
-    '<' +
-    vXored +
-    '.length;' +
-    vI +
-    '++){' +
-    vResult +
-    '+=String["fromCharCode"](' +
-    vXored +
-    '.charCodeAt(' +
-    vI +
-    ')^' +
-    vKey +
-    ');' +
-    '}' +
-    // Executa via script element
-    'var ' +
-    vEl +
-    '=document["createElement"]("script");' +
-    vEl +
-    '["textContent"]=' +
-    vResult +
-    ';' +
-    'document["head"]["appendChild"](' +
-    vEl +
-    ');' +
-    vEl +
-    '["remove"]();' +
-    '})();';
-
-  return loader;
-}
-
-// ============================================
-// PROXY HELPERS - Encaminha requests para Supabase
-// ============================================
-function proxyGet(endpoint, res, transform = null) {
-  const https = require('https');
-  const url = new URL(API_URL + endpoint);
-
-  https
-    .get(
-      {
-        hostname: url.hostname,
-        path: url.pathname + url.search,
-        headers: { 'Content-Type': 'application/json', ...SUPABASE_HEADERS }
-      },
-      (apiRes) => {
-        let data = '';
-        apiRes.on('data', (c) => (data += c));
-        apiRes.on('end', () => {
-          try {
-            let parsed = JSON.parse(data);
-            if (transform) {
-              const transformed = transform(parsed);
-              if (transformed !== undefined) {
-                res.end(JSON.stringify(transformed));
-                return;
-              }
-            }
-            res.end(data);
-          } catch (e) {
-            res.end('null');
-          }
-        });
-      }
-    )
-    .on('error', () => {
-      res.end('null');
-    });
-}
-
-function proxyPost(endpoint, data, res) {
-  const https = require('https');
-  const url = new URL(API_URL + endpoint);
-  const postData = JSON.stringify(data);
-
-  const req = https.request(
-    {
-      hostname: url.hostname,
-      path: url.pathname,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(postData),
-        ...SUPABASE_HEADERS
-      }
-    },
-    (apiRes) => {
-      let responseData = '';
-      apiRes.on('data', (c) => (responseData += c));
-      apiRes.on('end', () => {
-        try {
-          res.end(responseData);
-        } catch (e) {
-          res.end('{"success":false}');
-        }
-      });
-    }
-  );
-
-  req.on('error', () => {
-    res.end('{"success":false}');
-  });
-
-  req.write(postData);
-  req.end();
-}
-
-function proxyDelete(endpoint, res) {
-  const https = require('https');
-  const url = new URL(API_URL + endpoint);
-
-  const req = https.request(
-    {
-      hostname: url.hostname,
-      path: url.pathname + url.search,
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        ...SUPABASE_HEADERS
-      }
-    },
-    (apiRes) => {
-      let responseData = '';
-      apiRes.on('data', (c) => (responseData += c));
-      apiRes.on('end', () => {
-        try {
-          res.end(responseData);
-        } catch (e) {
-          res.end('{"success":false}');
-        }
-      });
-    }
-  );
-
-  req.on('error', () => {
-    res.end('{"success":false}');
-  });
-
-  req.end();
-}
-
-function proxyDeleteWithCallback(endpoint, res, callback) {
-  const https = require('https');
-  const url = new URL(API_URL + endpoint);
-
-  const req = https.request(
-    {
-      hostname: url.hostname,
-      path: url.pathname + url.search,
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        ...SUPABASE_HEADERS
-      }
-    },
-    (apiRes) => {
-      let responseData = '';
-      apiRes.on('data', (c) => (responseData += c));
-      apiRes.on('end', () => {
-        try {
-          res.end(responseData);
-          if (callback) callback(responseData);
-        } catch (e) {
-          res.end('{"success":false}');
-          if (callback) callback(null);
-        }
-      });
-    }
-  );
-
-  req.on('error', () => {
-    res.end('{"success":false}');
-    if (callback) callback(null);
-  });
-
-  req.end();
-}
-
-function proxyPostWithCallback(endpoint, data, res, callback) {
-  const https = require('https');
-  const url = new URL(API_URL + endpoint);
-  const postData = JSON.stringify(data);
-
-  const req = https.request(
-    {
-      hostname: url.hostname,
-      path: url.pathname,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(postData),
-        ...SUPABASE_HEADERS
-      }
-    },
-    (apiRes) => {
-      let responseData = '';
-      apiRes.on('data', (c) => (responseData += c));
-      apiRes.on('end', () => {
-        try {
-          res.end(responseData);
-          if (callback) callback(responseData);
-        } catch (e) {
-          res.end('{"success":false}');
-          if (callback) callback(null);
-        }
-      });
-    }
-  );
-
-  req.on('error', () => {
-    res.end('{"success":false}');
-    if (callback) callback(null);
-  });
-
-  req.write(postData);
-  req.end();
-}
-
 app.whenReady().then(async function () {
+  autoUpdater.checkForUpdates();
+
   const extPath = extractExtensions();
 
   if (extPath) {
@@ -627,7 +248,7 @@ app.whenReady().then(async function () {
     width: 1280,
     height: 720,
     title: 'HaxBall Desktop',
-    icon: path.join(__dirname, 'icon.png'),
+    icon: isWindows ? path.join(__dirname, 'icons/icon.ico') : path.join(__dirname, 'icons/icon.png'),
     show: false,
     webPreferences: {
       nodeIntegration: false,
@@ -647,7 +268,8 @@ app.whenReady().then(async function () {
     }
   });
 
-  globalShortcut.register('CommandOrControl+H', function () {
+  const shortcut = isWindows ? 'CommandOrControl+H' : 'Ctrl+H';
+  globalShortcut.register(shortcut, function () {
     if (mainWindow) {
       mainWindow.webContents.executeJavaScript(`
                 var settingsBtn = document.querySelector('[data-hook="settings"]');
@@ -663,14 +285,9 @@ app.whenReady().then(async function () {
   //   mainWindow.webContents.closeDevTools();
   // });
 
-  // Click direito é controlado pela extensão security.js
-  // Permite em: lista de salas, jogadores individuais
-  // Bloqueia no resto
-
   mainWindow.once('ready-to-show', function () {
     mainWindow.show();
 
-    // Verifica se extensões foram carregadas após 3 segundos
     setTimeout(function () {
       const extensions = session.defaultSession.extensions?.getAllExtensions() || {};
       const extensionsList = [];
@@ -711,14 +328,15 @@ app.whenReady().then(async function () {
       mainWindow.setFullScreen(!mainWindow.isFullScreen());
     }
 
-    // Zoom In: Ctrl + = ou Ctrl + +
-    if (input.control && (input.key === '=' || input.key === '+')) {
+    // Zoom In: Ctrl +
+    if (input.control && input.key === '+') {
       e.preventDefault();
       currentZoomPercent += 10;
       mainWindow.webContents.setZoomFactor(currentZoomPercent / 100);
       showZoomIndicator(currentZoomPercent);
     }
 
+    // Zoom Out: Ctrl -
     if (input.control && input.key === '-') {
       e.preventDefault();
       currentZoomPercent -= 10;
@@ -726,6 +344,7 @@ app.whenReady().then(async function () {
       showZoomIndicator(currentZoomPercent);
     }
 
+    // Reset Zoom: Ctrl + 0
     if (input.control && input.key === '0') {
       e.preventDefault();
       currentZoomPercent = 100;
@@ -733,6 +352,7 @@ app.whenReady().then(async function () {
       showZoomIndicator(currentZoomPercent);
     }
 
+    // F12 bloquiado
     if (input.key === 'F12' || (input.control && input.shift && input.key.toLowerCase() === 'i')) {
       e.preventDefault();
     }
@@ -763,6 +383,7 @@ if (!lock) {
   });
 }
 
+// IPC
 ipcMain.handle('close-app', async () => {
   app.quit();
 });
@@ -771,35 +392,27 @@ ipcMain.handle('get-version', async () => {
   return APP_VERSION;
 });
 
-ipcMain.handle('get-extension-status', async () => {
-  try {
-    const extensions = session.defaultSession.extensions?.getAllExtensions() || {};
-    const status = {
-      loaded: false,
-      extensions: []
-    };
-
-    for (let id in extensions) {
-      const ext = extensions[id];
-      status.extensions.push({
-        id: id,
-        name: ext.name,
-        version: ext.version
-      });
-
-      if (ext.name === 'HaxBall Desktop') {
-        status.loaded = true;
-      }
-    }
-
-    return status;
-  } catch (e) {
-    return { loaded: false, error: e.message };
-  }
-});
-
 ipcMain.handle('open-external', async (event, url) => {
   if (url) {
     shell.openExternal(url);
   }
+});
+
+ipcMain.handle('updater-check', async () => {
+  const result = await autoUpdater.checkForUpdates();
+
+  return {
+    current: app.getVersion(),
+    latest: result?.updateInfo?.version || app.getVersion(),
+    has_update: !!result?.updateInfo
+  };
+});
+
+ipcMain.handle('updater-download', async () => {
+  await autoUpdater.downloadUpdate();
+  return true;
+});
+
+ipcMain.handle('updater-apply', async () => {
+  autoUpdater.quitAndInstall();
 });

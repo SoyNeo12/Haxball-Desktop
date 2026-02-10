@@ -1,49 +1,56 @@
 {
-  "name": "haxball-desktop",
+  "name": "haxball-pro",
   "version": "1.0.0",
-  "description": "HaxBall Desktop - Continuação Electron",
-  "homepage": "https://discord.gg/EVqUSFb4CZ",
+  "description": "HaxBall Desktop - #continuação",
   "main": "main.js",
   "author": {
-    "name": "Samuel",
-    "email": "unknown@email.com"
+    "name": "neo",
+    "email": "neo@unknown.com"
   },
-  "build": {
-    "appId": "com.haxballbr.desktop",
-    "productName": "Haxball Desktop",
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "SoyNeo12",
-        "repo": "https://github.com/SoyNeo12/HaxballApp.git"
-      }
-    ],
-    "linux": {
-      "target": [
-        "deb",
-        "appImage"
-      ],
-      "category": "Utility",
-      "maintainer": "Samuel <unknown@email.com>"
-    },
-    "win": {
-      "target": [
-        "nsis"
-      ],
-      "category": "Utility",
-      "maintainer": "Samuel <unknown@email.com>"
-    }
+  "license": "ISC",
+  "homepage": "https://github.com/SoyNeo12/HaxballApp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SoyNeo12/HaxballApp.git"
   },
+  "bugs": {
+    "url": "https://github.com/SoyNeo12/HaxballApp/issues"
+  },
+  "keywords": [
+    "haxball",
+    "game",
+    "electron",
+    "desktop-app",
+    "soccer",
+    "multiplayer",
+    "performance"
+  ],
+  "type": "commonjs",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "dev": "electron . --inspect",
+    "build": "electron-builder --config electron-builder.json",
+    "build:win": "electron-builder --win --config electron-builder.json",
+    "build:linux": "electron-builder --linux --config electron-builder.json",
+    "build:all": "electron-builder -mwl --config electron-builder.json",
+    "dist": "npm run build",
+    "pack": "electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps",
+    "clean": "rm -rf dist node_modules package-lock.json",
+    "rebuild": "npm run clean && npm install"
+  },
+  "build": {
+    "extends": "./electron-builder.json"
   },
   "devDependencies": {
-    "electron": "^40.2.1",
+    "electron": "^40.1.0",
     "electron-builder": "^26.7.0"
   },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
   "dependencies": {
-    "electron-updater": "^6.7.3",
-    "pg": "^8.18.0"
+    "electron-updater": "^6.7.3"
   }
 }

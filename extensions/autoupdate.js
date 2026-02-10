@@ -1,5 +1,5 @@
 // ============================================
-// AUTO UPDATE - Sistema de atualização via Supabase
+// AUTO UPDATE - Electron Updater (GitHub)
 // ============================================
 (function () {
   if (Injector.isMainFrame()) return;
@@ -60,9 +60,6 @@
     dialog.style.cssText =
       'background:#141414;border:1px solid #232323;border-radius:12px;padding:24px;max-width:450px;width:90%;max-height:80vh;overflow-y:auto;';
 
-    var notes = (updateInfo.notes || 'Sem notas de atualização').replace(/\n/g, '<br>');
-    var fileCount = updateInfo.files ? updateInfo.files.length : 0;
-
     dialog.innerHTML =
       '\
             <h2 style="color:#fff;margin:0 0 8px 0;font-size:18px;">Nova versão disponível!</h2>\
@@ -70,17 +67,7 @@
       updateInfo.current +
       ' → v' +
       updateInfo.latest +
-      ' (' +
-      (updateInfo.date || '') +
-      ')</p>\
-            <div style="background:#1a1a1a;border-radius:8px;padding:12px;margin-bottom:16px;max-height:200px;overflow-y:auto;">\
-                <p style="color:#ccc;margin:0;font-size:12px;line-height:1.6;">' +
-      notes +
       '</p>\
-            </div>\
-            <p style="color:#666;font-size:11px;margin:0 0 16px 0;">' +
-      fileCount +
-      ' arquivo(s) para atualizar</p>\
             <div id="update-progress" style="display:none;margin-bottom:16px;">\
                 <div style="background:#272727;border-radius:4px;height:6px;overflow:hidden;">\
                     <div id="progress-bar" style="background:#f59e0b;height:100%;width:0%;transition:width 0.3s;"></div>\
@@ -101,7 +88,7 @@
     });
 
     document.getElementById('update-download').addEventListener('click', function () {
-      startUpdate(updateInfo);
+      startUpdate();
     });
 
     overlay.addEventListener('click', function (e) {
@@ -109,40 +96,25 @@
     });
   }
 
-  function startUpdate(_updateInfo) {
-    var buttons = document.getElementById('update-buttons');
-    var progress = document.getElementById('update-progress');
-    var progressBar = document.getElementById('progress-bar');
-    var progressText = document.getElementById('progress-text');
+  function startUpdate() {
+    let buttons = document.getElementById('update-buttons');
+    let progress = document.getElementById('update-progress');
+    let progressBar = document.getElementById('progress-bar');
+    let progressText = document.getElementById('progress-text');
 
     buttons.style.display = 'none';
     progress.style.display = 'block';
-    progressText.textContent = 'Baixando arquivos...';
+    progressText.textContent = 'Baixando atualização...';
 
-    fetch('http://localhost:5483/download-update')
-      .then(function (res) {
-        return res.json();
-      })
-      .then(function (data) {
-        if (data.success && data.ready) {
-          progressBar.style.width = '100%';
-          progressText.textContent = 'Download completo! Aplicando atualização...';
+    window.updater
+      .download()
+      .then(function () {
+        progressBar.style.width = '100%';
+        progressText.textContent = 'Download completo! Reiniciando...';
 
-          setTimeout(function () {
-            fetch('http://localhost:5483/apply-update')
-              .then(function () {
-                progressText.textContent = 'Reiniciando...';
-              })
-              .catch(function () {
-                progressText.textContent = 'Reiniciando...';
-              });
-          }, 1000);
-        } else {
-          progressText.textContent = 'Erro: ' + (data.error || 'Falha no download');
-          progressText.style.color = '#ff4444';
-          buttons.style.display = 'flex';
-          progress.style.display = 'none';
-        }
+        setTimeout(function () {
+          window.updater.apply();
+        }, 1000);
       })
       .catch(function (err) {
         progressText.textContent = 'Erro: ' + err.message;
@@ -150,48 +122,21 @@
         buttons.style.display = 'flex';
         progress.style.display = 'none';
       });
-
-    // Simula progresso enquanto baixa
-    var fakeProgress = 0;
-    var progressInterval = setInterval(function () {
-      fakeProgress += Math.random() * 15;
-      if (fakeProgress > 90) {
-        clearInterval(progressInterval);
-        fakeProgress = 90;
-      }
-      progressBar.style.width = fakeProgress + '%';
-    }, 500);
   }
 
   function checkForUpdates() {
-    fetch('http://localhost:5483/check-update')
-      .then(function (res) {
-        return res.json();
-      })
+    window.updater
+      .check()
       .then(function (data) {
         markUpdateChecked();
-        Injector.log(
-          'Update check: current=' + data.current + ', latest=' + data.latest + ', has_update=' + data.has_update
-        );
         injectVersionAndUpdateButton(data.current, data);
 
-        // Se for update forçado, mostra dialog automaticamente
-        if (data.has_update && data.force_update) {
+        if (data.has_update) {
           showUpdateDialog(data);
         }
       })
-      .catch(function (err) {
-        Injector.log('Update check failed: ' + err);
-        fetch('http://localhost:5483/version')
-          .then(function (res) {
-            return res.json();
-          })
-          .then(function (data) {
-            injectVersionAndUpdateButton(data.version, null);
-          })
-          .catch(function () {
-            injectVersionAndUpdateButton('?', null);
-          });
+      .catch(function () {
+        injectVersionAndUpdateButton('?', null);
       });
   }
 
@@ -209,23 +154,14 @@
     if (shouldCheckUpdate()) {
       checkForUpdates();
     } else {
-      fetch('http://localhost:5483/version')
-        .then(function (res) {
-          return res.json();
-        })
+      window.updater
+        .check()
         .then(function (data) {
-          fetch('http://localhost:5483/check-update')
-            .then(function (res) {
-              return res.json();
-            })
-            .then(function (updateData) {
-              injectVersionAndUpdateButton(data.version, updateData);
-            })
-            .catch(function () {
-              injectVersionAndUpdateButton(data.version, null);
-            });
+          injectVersionAndUpdateButton(data.current, data);
         })
-        .catch(function () {});
+        .catch(function () {
+          injectVersionAndUpdateButton('?', null);
+        });
     }
 
     Injector.onView('roomlist-view', showVersionInfo);
@@ -233,7 +169,7 @@
     Injector.onView('room-view', hideVersionInfo);
     Injector.onView('game-view', hideVersionInfo);
 
-    Injector.log('Auto update module loaded');
+    Injector.log('Auto update module loaded (Electron)');
   }
 
   if (document.readyState === 'loading') {
