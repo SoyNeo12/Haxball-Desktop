@@ -2,7 +2,7 @@
 (function () {
   if (Injector.isMainFrame()) return;
 
-  const CURRENT_VERSION = '1.0.0';
+  const CURRENT_VERSION = '1.2.3';
   let currentLang = localStorage.getItem('haxball_language') || 'pt';
   let selectedLang = null;
 
@@ -10,7 +10,7 @@
     pt: {
       langTitle: 'Idioma',
       langText:
-        'Desde o lançamento, recebemos muito carinho de jogadores de toda a América Latina! Argentinos, uruguaios, chilenos, peruanos e tantos outros nos pediram suporte ao espanhol.<br><br>Então aqui está: agora você pode usar o aplicativo no seu idioma. Obrigado por todo o apoio!',
+        'Desde o lançamento, recebemos muito carinho de jogadores de toda a América Latina! Argentinos, uruguaios, chilenos, peruanos e tantos outros nos pediram suporte ao espanhol.<br><br>Então aqui está: agora você pode usar o aplicativo no seu idioma. Gracias por todo el apoyo!',
       continue: 'Continuar',
       portuguese: 'Português',
       spanish: 'Español'
@@ -32,12 +32,12 @@
   function createWelcomePopup() {
     if (document.getElementById('welcome-popup-overlay')) return;
 
-    let overlay = document.createElement('div');
+    const overlay = document.createElement('div');
     overlay.id = 'welcome-popup-overlay';
     overlay.style.cssText =
       'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:10002;display:flex;align-items:center;justify-content:center;';
 
-    let popup = document.createElement('div');
+    const popup = document.createElement('div');
     popup.id = 'welcome-popup';
     popup.style.cssText =
       'background:#111;border:1px solid #252525;border-radius:12px;max-width:500px;width:90vw;overflow:hidden;';
@@ -131,9 +131,25 @@
   }
 
   function closeWelcomePopup() {
-    let overlay = document.getElementById('welcome-popup-overlay');
+    const overlay = document.getElementById('welcome-popup-overlay');
     if (overlay) overlay.remove();
+
+    // Marca como visto
     localStorage.setItem('haxball_welcome_seen', CURRENT_VERSION);
+
+    // Exibe a caixa de nickname se existir
+    setTimeout(function () {
+      const nicknameDialog = document.querySelector('.choose-nickname-view');
+      if (nicknameDialog) {
+        nicknameDialog.style.display = '';
+        const h1 = nicknameDialog.querySelector('.dialog h1');
+        const input = nicknameDialog.querySelector('.dialog .label-input');
+        const okBtn = nicknameDialog.querySelector('.dialog button[data-hook="ok"]');
+        if (h1) h1.style.display = '';
+        if (input) input.style.display = '';
+        if (okBtn) okBtn.style.display = '';
+      }
+    }, 100);
   }
 
   window.__showWelcomePopup = createWelcomePopup;

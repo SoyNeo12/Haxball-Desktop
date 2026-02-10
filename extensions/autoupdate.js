@@ -106,14 +106,14 @@
     progress.style.display = 'block';
     progressText.textContent = 'Baixando atualização...';
 
-    window.updater
+    window.electronAPI
       .download()
       .then(function () {
         progressBar.style.width = '100%';
         progressText.textContent = 'Download completo! Reiniciando...';
 
         setTimeout(function () {
-          window.updater.apply();
+          window.electronAPI.apply();
         }, 1000);
       })
       .catch(function (err) {
@@ -125,7 +125,7 @@
   }
 
   function checkForUpdates() {
-    window.updater
+    window.electronAPI
       .check()
       .then(function (data) {
         markUpdateChecked();
@@ -154,7 +154,7 @@
     if (shouldCheckUpdate()) {
       checkForUpdates();
     } else {
-      window.updater
+      window.electronAPI
         .check()
         .then(function (data) {
           injectVersionAndUpdateButton(data.current, data);
