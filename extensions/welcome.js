@@ -2,7 +2,7 @@
 (function () {
   if (Injector.isMainFrame()) return;
 
-  const CURRENT_VERSION = '1.2.3';
+  const CURRENT_VERSION = '1.0.0';
   let currentLang = localStorage.getItem('haxball_language') || 'pt';
   let selectedLang = null;
 
