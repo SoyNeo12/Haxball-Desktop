@@ -214,47 +214,60 @@ app.whenReady().then(async function () {
   autoUpdater.checkForUpdates();
 
   const extPath = extractExtensions();
+  let extensionLoaded = false;
 
   if (extPath) {
-    tempExtPath = extPath;
-
-    let loaded = false;
     for (let attempt = 1; attempt <= 3; attempt++) {
       console.log(`[EXT] Tentativa ${attempt}/3 de carregar extensão...`);
-      loaded = await loadExtensionSafely(extPath);
+      extensionLoaded = await loadExtensionSafely(extPath);
 
-      if (loaded) break;
+      if (extensionLoaded) break;
 
-      if (attempt < 3) {
-        console.log('[EXT] Aguardando 1 segundo antes de tentar novamente....');
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
-
-    if (!loaded) {
-      console.error('[EXT] A extensão não pôde ser carregada após 3 tentativas.');
-    }
-  } else {
-    console.error('[EXT] Não foi possível extrair a extensão.');
   }
 
+  // 🔎 Verificación REAL
+  const extensions = session.defaultSession.extensions?.getAllExtensions() || {};
+  const hasExtension = Object.keys(extensions).length > 0;
+
+  if (!extensionLoaded || !hasExtension) {
+    console.error('[EXT] ❌ Extensão não carregada. Abortando exibição da janela.');
+    return; // ❌ No crea la ventana
+  }
+
+  console.log('[EXT] ✓ Todas as extensões carregadas corretamente');
+
+  // 🚀 Solo ahora creamos la ventana
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
-    title: 'HaxBall Desktop',
-    icon: isWindows ? path.join(__dirname, 'icons/icon.ico') : path.join(__dirname, 'icons/icon.png'),
     show: false,
+    backgroundColor: '#000000',
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       webSecurity: false,
       allowRunningInsecureContent: true,
-      devTools: true,
       preload: path.join(__dirname, 'preload.js')
     }
   });
 
   mainWindow.setMenu(null);
+  mainWindow.loadURL('https://www.haxball.com/play');
+
+  session.defaultSession.webRequest.onBeforeRequest(
+    {
+      urls: ['*://www.haxball.com/*/__cache_static__/g/game-min.js*']
+    },
+    (details, callback) => {
+      console.log('[HOOK] Substituindo game-min.js:', details.url);
+
+      callback({
+        redirectURL: 'file://' + path.join(__dirname, 'extensions/game-min-original.js')
+      });
+    }
+  );
 
   globalShortcut.register('Ctrl+E', function () {
     if (mainWindow) {
@@ -279,38 +292,9 @@ app.whenReady().then(async function () {
   //   mainWindow.webContents.closeDevTools();
   // });
 
-  mainWindow.once('ready-to-show', function () {
+  mainWindow.webContents.once('did-finish-load', () => {
+    console.log('[APP] Página carregada e extensões OK');
     mainWindow.show();
-
-    setTimeout(function () {
-      const extensions = session.defaultSession.extensions?.getAllExtensions() || {};
-      const extensionsList = [];
-
-      for (let id in extensions) {
-        extensionsList.push(extensions[id].name);
-        console.log('[EXT] Extensão activa:', extensions[id].name, 'ID:', id);
-      }
-
-      if (extensionsList.length === 0) {
-        console.error('[EXT] ⚠️ Nenhuma extensão foi carregada!');
-
-        mainWindow.webContents
-          .executeJavaScript(
-            `
-          setTimeout(function() {
-            var div = document.createElement('div');
-            div.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#ff4444;color:#fff;padding:15px 25px;border-radius:8px;z-index:999999;font-family:system-ui;box-shadow:0 4px 12px rgba(0,0,0,0.3);';
-            div.innerHTML = '<strong>⚠️ Extensões não carregadas!</strong><br>O HaxBall Desktop pode não funcionar corretamente.<br><small>Tente reiniciar o aplicativo.</small>';
-            document.body.appendChild(div);
-            setTimeout(function() { div.remove(); }, 10000);
-          }, 2000);
-        `
-          )
-          .catch(() => {});
-      } else {
-        console.log('[EXT] ✓ Extensões carregadas:', extensionsList.join(', '));
-      }
-    }, 3000);
   });
 
   // F11 = Fullscreen (F12 bloqueado)
@@ -351,8 +335,6 @@ app.whenReady().then(async function () {
       e.preventDefault();
     }
   });
-
-  mainWindow.loadURL('https://www.haxball.com/play');
 });
 
 app.on('window-all-closed', function () {

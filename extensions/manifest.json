@@ -14,7 +14,6 @@
       "js": [
         "core.js",
         "header.js",
-        "background.js",
         "welcome.js",
         "styles.js",
         "themes.js",

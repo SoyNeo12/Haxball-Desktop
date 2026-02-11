@@ -233,19 +233,19 @@
     function createPerfTab(doc, tabs) {
       if (tabs.querySelector('button[data-hook="perfbtn"]')) return;
 
-      var perfBtn = doc.createElement('button');
+      let perfBtn = doc.createElement('button');
       perfBtn.setAttribute('data-hook', 'perfbtn');
       perfBtn.textContent = t('Desempenho');
       perfBtn.style.display = 'none';
       tabs.appendChild(perfBtn);
 
-      var perfSection = doc.createElement('section');
+      let perfSection = doc.createElement('section');
       perfSection.className = 'perf-section section';
       perfSection.setAttribute('data-hook', 'perf-section');
       perfSection.style.display = 'none';
 
       // Descrições das opções
-      var PERF_OPTIONS = [
+      const PERF_OPTIONS = [
         {
           hook: 'tmisc-simplelines',
           title: t('Linhas simplificadas'),
@@ -295,20 +295,14 @@
           hook: 'tmisc-showchat',
           title: t('Desativar indicador de chat'),
           desc: t('O balão que aparece quando alguém fala. Remove essa renderização extra.')
-        },
-        {
-          hook: 'tmisc-highpriority',
-          title: t('Alta prioridade'),
-          desc: t('Dá mais recursos do sistema para o jogo. Pode travar outros programas. Use com cuidado!'),
-          warning: true
         }
       ];
 
-      var container = doc.createElement('div');
+      let container = doc.createElement('div');
       container.style.cssText = 'display:flex;flex-direction:column;gap:2px;';
 
       // Header
-      var header = doc.createElement('div');
+      let header = doc.createElement('div');
       header.style.cssText =
         'color:var(--theme-text-muted);font-size:11px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--theme-border);';
       header.innerHTML = t('Ative as opções para melhorar o FPS.');
@@ -316,7 +310,7 @@
 
       // Cria cada opção
       PERF_OPTIONS.forEach(function (opt) {
-        var row = doc.createElement('div');
+        let row = doc.createElement('div');
         row.className = 'perf-option-row';
         row.style.cssText =
           'display:flex;align-items:flex-start;gap:10px;padding:6px 8px;border-radius:6px;cursor:pointer;';
@@ -330,7 +324,7 @@
         };
 
         // Checkbox visual
-        var checkbox = doc.createElement('div');
+        let checkbox = doc.createElement('div');
         checkbox.className = 'perf-checkbox';
         checkbox.style.cssText =
           'width:18px;height:18px;border:2px solid var(--theme-border-light);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;';
@@ -338,10 +332,10 @@
           '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="opacity:0;"><polyline points="20 6 9 17 4 12"/></svg>';
 
         // Texto
-        var textDiv = doc.createElement('div');
+        let textDiv = doc.createElement('div');
         textDiv.style.cssText = 'flex:1;min-width:0;';
 
-        var titleRow = doc.createElement('div');
+        let titleRow = doc.createElement('div');
         titleRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:2px;';
 
         var title = doc.createElement('span');
@@ -404,7 +398,6 @@
         'show_animations',
         'show_indicator',
         'show_chat_indicator',
-        'high_priority',
         'canvas_boost_scale',
         'fps_limit',
         'resolution_scale',

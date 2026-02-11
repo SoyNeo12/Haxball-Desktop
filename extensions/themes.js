@@ -7,11 +7,12 @@
 
   // Função de tradução
   function t(key) {
+    console.log(window.__t);
     return window.__t ? window.__t(key) : key;
   }
 
   // Definição dos temas
-  var THEMES = {
+  const THEMES = {
     default: {
       nameKey: 'Padrão',
       colors: {}
@@ -78,16 +79,17 @@
     }
   };
 
-  var STORAGE_KEY = 'haxball-theme';
-  var currentTheme = 'dark';
+  let STORAGE_KEY = 'haxball-theme';
+  let currentTheme = 'dark';
 
   // Carrega tema salvo
   function loadSavedTheme() {
     try {
-      var saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(STORAGE_KEY);
       if (saved && THEMES[saved]) {
         currentTheme = saved;
       }
+      console.log(currentTheme);
     } catch (e) {}
     return currentTheme;
   }
@@ -161,8 +163,8 @@
 
   // Obtém lista de temas (com nomes traduzidos)
   function getThemes() {
-    var result = {};
-    for (var key in THEMES) {
+    let result = {};
+    for (let key in THEMES) {
       result[key] = {
         name: t(THEMES[key].nameKey),
         colors: THEMES[key].colors
@@ -173,10 +175,10 @@
 
   // Alterna entre temas
   function toggleTheme() {
-    var themeKeys = Object.keys(THEMES);
-    var currentIndex = themeKeys.indexOf(currentTheme);
-    var newIndex = (currentIndex + 1) % themeKeys.length;
-    var newTheme = themeKeys[newIndex];
+    const themeKeys = Object.keys(THEMES);
+    const currentIndex = themeKeys.indexOf(currentTheme);
+    const newIndex = (currentIndex + 1) % themeKeys.length;
+    const newTheme = themeKeys[newIndex];
     applyTheme(newTheme);
     return newTheme;
   }

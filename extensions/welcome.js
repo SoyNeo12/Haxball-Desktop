@@ -1,4 +1,6 @@
-// Welcome popup
+// ============================================
+// WELCOME - Popup de boas-vindas
+// ============================================
 (function () {
   if (Injector.isMainFrame()) return;
 
@@ -9,16 +11,14 @@
   const TRANSLATIONS = {
     pt: {
       langTitle: 'Idioma',
-      langText:
-        'Desde o lançamento, recebemos muito carinho de jogadores de toda a América Latina! Argentinos, uruguaios, chilenos, peruanos e tantos outros nos pediram suporte ao espanhol.<br><br>Então aqui está: agora você pode usar o aplicativo no seu idioma. Gracias por todo el apoyo!',
+      langText: 'Recebemos jogadores de toda a América Latina! Agora você pode escolher o idioma do aplicativo.',
       continue: 'Continuar',
       portuguese: 'Português',
       spanish: 'Español'
     },
     es: {
       langTitle: 'Idioma',
-      langText:
-        '¡Desde el lanzamiento, recibimos mucho cariño de jugadores de toda América Latina! Argentinos, uruguayos, chilenos, peruanos y tantos otros nos pidieron soporte en español.<br><br>Así que aquí está: ahora puedes usar la aplicación en tu idioma. Gracias por todo el apoyo!',
+      langText: '¡Recibimos jugadores de toda América Latina! Ahora puedes elegir el idioma de la aplicación.',
       continue: 'Continuar',
       portuguese: 'Português',
       spanish: 'Español'
@@ -130,36 +130,38 @@
     document.body.appendChild(overlay);
   }
 
-  function closeWelcomePopup() {
-    const overlay = document.getElementById('welcome-popup-overlay');
-    if (overlay) overlay.remove();
-
-    // Marca como visto
-    localStorage.setItem('haxball_welcome_seen', CURRENT_VERSION);
-
-    // Exibe a caixa de nickname se existir
+  function showNicknameDialog() {
     setTimeout(function () {
       const nicknameDialog = document.querySelector('.choose-nickname-view');
       if (nicknameDialog) {
-        nicknameDialog.style.display = '';
+        nicknameDialog.style.setProperty('display', 'block', 'important');
         const h1 = nicknameDialog.querySelector('.dialog h1');
         const input = nicknameDialog.querySelector('.dialog .label-input');
         const okBtn = nicknameDialog.querySelector('.dialog button[data-hook="ok"]');
-        if (h1) h1.style.display = '';
-        if (input) input.style.display = '';
-        if (okBtn) okBtn.style.display = '';
+        if (h1) h1.style.setProperty('display', 'block', 'important');
+        if (input) input.style.setProperty('display', 'block', 'important');
+        if (okBtn) okBtn.style.setProperty('display', 'inline-block', 'important');
       }
     }, 100);
+  }
+
+  function closeWelcomePopup() {
+    const overlay = document.getElementById('welcome-popup-overlay');
+    if (overlay) overlay.remove();
+    localStorage.setItem('haxball_welcome_seen', CURRENT_VERSION);
+
+    showNicknameDialog();
   }
 
   window.__showWelcomePopup = createWelcomePopup;
   window.__closeWelcomePopup = closeWelcomePopup;
 
-  // Mostra o popup ao carregar (apenas se não viu essa versão)
   Injector.waitForElement('body').then(function () {
     const seenVersion = localStorage.getItem('haxball_welcome_seen');
     if (seenVersion !== CURRENT_VERSION) {
       setTimeout(createWelcomePopup, 800);
+    } else {
+      setTimeout(showNicknameDialog, 800);
     }
   });
 })();

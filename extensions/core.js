@@ -20,6 +20,7 @@ var Injector = {
 
     return new Promise(function (resolve, reject) {
       function tryFind() {
+        if (!document) return false;
         var el = document.querySelector(selector);
         if (el) {
           resolve(el);
@@ -43,7 +44,7 @@ var Injector = {
 
       setTimeout(function () {
         observer.disconnect();
-        reject(new Error('Timeout: ' + selector));
+        resolve(null);
       }, timeout);
     });
   },
