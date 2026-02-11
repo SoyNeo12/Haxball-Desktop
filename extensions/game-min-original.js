@@ -1,9 +1,7 @@
-/*
- HaxBall Â© Mario Carbajal - All rights reserved.
- cbbbcc59
-*/
 'use strict';
 (function (pa) {
+  // === PERFORMANCE OPTIMIZATIONS ===
+  // Color Cache - evita criação de strings repetidas
   const _colorCache = new Map();
   const _maxColorCacheSize = 512;
   function _getCachedColor(c) {
@@ -15,14 +13,18 @@
     }
     return s;
   }
-
+  // Pre-computed constants
   const _TWO_PI = 2 * Math.PI;
+  // Bitwise floor - mais rápido que Math.floor para coordenadas
+  // Bitwise round - evita sub-pixel rendering
+  // Path2D pré-compilado para círculos (evita recriar path a cada frame)
   const _circlePath = new Path2D();
   _circlePath.arc(0, 0, 1, 0, _TWO_PI, false);
 
+  // Sprite Cache para círculos - drawImage() é MUITO mais rápido que arc()
   const _spriteCache = new Map();
   const _spriteCacheMaxSize = 64;
-  const _spriteSize = 64;
+  const _spriteSize = 64; // tamanho base do sprite
 
   function _getCircleSprite(fillColor, strokeColor) {
     const key = fillColor + '|' + strokeColor;
@@ -57,7 +59,9 @@
     return sprite;
   }
 
-  // end optimizations
+  // Sprite para bola (branca com borda preta)
+  // === END OPTIMIZATIONS ===
+
   function ka() {
     return w.Pe(this, '');
   }
@@ -413,7 +417,7 @@
     }
   }
   class u {
-    constructor(a, b, c, d, e, f, g, h) {
+    constructor(a, b, c, d, e, f, h) {
       this.Dg = null;
       this.ba = a;
       this.S = b;
@@ -469,7 +473,11 @@
       this.Jc = this.Mc = 0;
     }
     Ce() {
-      return JSON.stringify({ lat: this.Jc, lon: this.Mc, code: this.ub });
+      return JSON.stringify({
+        lat: this.Jc,
+        lon: this.Mc,
+        code: this.ub
+      });
     }
     static Th(a) {
       return la.gg(JSON.parse(a));
@@ -492,7 +500,10 @@
       a = a.split(' ');
       let b = a[4];
       if ('typ' != a[6]) throw v.C(null);
-      return { vs: a[7], Dp: b };
+      return {
+        vs: a[7],
+        Dp: b
+      };
     }
   }
   class Qb {
@@ -573,7 +584,12 @@
       this.Kh = !0;
       null != this.wl && this.wl();
       let c = this;
-      this.ua.Ra.setRemoteDescription(new RTCSessionDescription({ sdp: a, type: 'answer' }))
+      this.ua.Ra.setRemoteDescription(
+        new RTCSessionDescription({
+          sdp: a,
+          type: 'answer'
+        })
+      )
         .then(function () {
           let d = 0;
           for (; d < b.length; ) c.ua.Ra.addIceCandidate(b[d++]);
@@ -1145,7 +1161,13 @@
         k.cj();
         (async function () {
           try {
-            let r = await k.Jo(new RTCSessionDescription({ sdp: c, type: 'offer' }), d);
+            let r = await k.Jo(
+              new RTCSessionDescription({
+                sdp: c,
+                type: 'offer'
+              }),
+              d
+            );
             l.Ri(k, r, k.ig, null);
             k.jg.then(function () {
               l.Uc(0, k, null);
@@ -1264,7 +1286,10 @@
         c = a.ze;
       for (; b < c.length; ) this.Yf.add(c[b++]);
       null != a.rd && this.Bh.add(a.rd);
-      return { Dt: a.ze, Bt: a.rd };
+      return {
+        Dt: a.ze,
+        Bt: a.rd
+      };
     }
     ce() {
       this.Yf.clear();
@@ -1552,12 +1577,12 @@
       }
     }
     Fa(a) {
-      var b = a.code;
+      var b = a.code || 'Mouse' + a.button;
       b = m.j.Jd.v().v(b);
       null != b && (a.preventDefault(), this.tq(b));
     }
     ld(a) {
-      a = m.j.Jd.v().v(a.code);
+      a = m.j.Jd.v().v(a.code || 'Mouse' + a.button);
       null != a && this.jq(a);
     }
     tq(a) {
@@ -1716,7 +1741,11 @@
           URL.revokeObjectURL(d.src);
           c(null);
         };
-        d.src = URL.createObjectURL(new Blob([a], { type: 'image/png' }));
+        d.src = URL.createObjectURL(
+          new Blob([a], {
+            type: 'image/png'
+          })
+        );
       });
     }
     static xj(a) {
@@ -2719,7 +2748,10 @@
       throw v.C('Bad color');
     }
     static Es(a) {
-      let b = { x: a.a.x, y: a.a.y };
+      let b = {
+        x: a.a.x,
+        y: a.a.y
+      };
       q.pa(b, 'bCoef', a.o, 1);
       q.Pc(b, 'cMask', a.i, 63);
       q.Pc(b, 'cGroup', a.B, 32);
@@ -2738,7 +2770,10 @@
       return b;
     }
     static Pr(a, b) {
-      let c = { v0: a.$.Dd, v1: a.ea.Dd };
+      let c = {
+        v0: a.$.Dd,
+        v1: a.ea.Dd
+      };
       q.pa(c, 'bias', a.Hc, b.Hc);
       q.pa(c, 'bCoef', a.o, b.o);
       let d = a.ip();
@@ -2773,7 +2808,11 @@
       return c;
     }
     static Hp(a) {
-      let b = { d0: a.ge, d1: a.he, length: a.Ib >= a.fc ? a.Ib : [a.Ib, a.fc] };
+      let b = {
+        d0: a.ge,
+        d1: a.he,
+        length: a.Ib >= a.fc ? a.Ib : [a.Ib, a.fc]
+      };
       q.Eg(b, a.S, 0);
       q.pa(b, 'strength', a.ye, 1 / 0);
       return b;
@@ -2803,7 +2842,10 @@
       return c;
     }
     static Pq(a) {
-      let b = { normal: [a.ya.x, a.ya.y], dist: a.Va };
+      let b = {
+        normal: [a.ya.x, a.ya.y],
+        dist: a.Va
+      };
       q.pa(b, 'bCoef', a.o, 1);
       q.Pc(b, 'cMask', a.i, 63);
       q.Pc(b, 'cGroup', a.B, 32);
@@ -2833,7 +2875,11 @@
       return b;
     }
     static pp(a) {
-      return { p0: [a.$.x, a.$.y], p1: [a.ea.x, a.ea.y], team: a.Ae == u.ia ? 'red' : 'blue' };
+      return {
+        p0: [a.$.x, a.$.y],
+        p1: [a.ea.x, a.ea.y],
+        team: a.Ae == u.ia ? 'red' : 'blue'
+      };
     }
     static Qp(a) {
       let b = new pb();
@@ -2979,7 +3025,15 @@
         };
         b = [];
         c = 0;
-        for (d = this.Zj; c < d.length; ) ((e = d[c]), ++c, (f = a(e)), 0 <= f && b.push({ Hn: f, item: e }));
+        for (d = this.Zj; c < d.length; )
+          ((e = d[c]),
+            ++c,
+            (f = a(e)),
+            0 <= f &&
+              b.push({
+                Hn: f,
+                item: e
+              }));
         b.sort(function (l, n) {
           return l.Hn - n.Hn;
         });
@@ -3012,7 +3066,10 @@
           f.onclick = function () {
             c.Gk(g);
           };
-          b.push({ item: g, La: f });
+          b.push({
+            item: g,
+            La: f
+          });
         }
         this.dd = b;
         this.dd[0].La.classList.toggle('selected', !0);
@@ -3134,6 +3191,13 @@
             T = T.code;
             null == tb.v(T) && (tb.Pa(T, y), m.j.Jd.ha(tb), Gc());
           };
+          qc.onmousedown = function (T) {
+            qc.classList.toggle('show', !1);
+            T.stopPropagation();
+            T.preventDefault();
+            var code = 'Mouse' + T.button;
+            null == tb.v(code) && (tb.Pa(code, y), m.j.Jd.ha(tb), Gc());
+          };
         };
         return F;
       }
@@ -3187,7 +3251,10 @@
         da(F.v());
       }
       function h(y) {
-        let F = { kn: l.get(y + 'btn'), ph: l.get(y + 'sec') };
+        let F = {
+          kn: l.get(y + 'btn'),
+          ph: l.get(y + 'sec')
+        };
         n.push(F);
         F.kn.onclick = function () {
           k(F);
@@ -3242,24 +3309,47 @@
           return y;
         }
       );
-      let r = [1, 0.75, 0.5, 0.25];
-      f(
-        'resscale',
-        m.j.Mi,
-        function (y) {
-          return r[y];
-        },
-        function (y) {
-          let F = 0,
-            L = r.length - 1;
-          for (; F < L && !(r[F] <= y); ) ++F;
-          return F;
+      let r = l.get('resscale-value'),
+        rr = l.get('resscale-range');
+      function updateResScale() {
+        let v = parseInt(rr.value);
+        r.textContent = v + '%';
+      }
+      rr.value = Math.round(m.j.Mi.v() * 100);
+      updateResScale();
+      rr.oninput = function () {
+        let v = parseInt(rr.value) / 100;
+        m.j.Mi.ha(v);
+        updateResScale();
+      };
+      // Quality Mode (HD vs Performance)
+      (function () {
+        var qm = l.get('qualitymode');
+        if (!qm) return;
+        var savedMode = localStorage.getItem('quality_mode') || '0';
+        qm.selectedIndex = parseInt(savedMode);
+        // Aplica o multiplicador baseado na seleção
+        function applyQualityMode() {
+          var idx = qm.selectedIndex;
+          localStorage.setItem('quality_mode', idx.toString());
+          // 0 = Performance (0.9), 1 = HD (1.0)
+          window._hxdQualityMultiplier = idx === 1 ? 1.0 : 0.9;
         }
-      );
+        applyQualityMode();
+        qm.onchange = applyQualityMode;
+      })();
       g('tvideo-lowlatency', m.j.li);
       g('tvideo-teamcol', m.j.Vm);
-      g('tvideo-showindicators', m.j.Uk);
-      g('tvideo-showavatars', m.j.Km);
+      g('tmisc-shownames', m.j.Lm);
+      g('tmisc-showavatars', m.j.Km);
+      g('tmisc-lowqualitycircles', m.j.Ym);
+      g('tmisc-showindicator', m.j.Rm);
+      g('tmisc-simplelines', m.j.Sm);
+      g('tmisc-ultrasimplelines', m.j.Xm);
+      g('tmisc-simplefield', m.j.Tm);
+      g('tmisc-showanimations', m.j.Um);
+      g('tmisc-showchat', m.j.Uk);
+      g('tmisc-culling', m.j.Wm);
       let t = l.get('chatopacity-value'),
         z = l.get('chatopacity-range');
       e();
@@ -3361,6 +3451,7 @@
       this.zb = a.zb;
       this.ba = a.Z;
       this.f = x.Ia(vb.O);
+      this.f.dataset.playerId = a.Z;
       let b = x.Ba(this.f);
       this.nf = b.get('name');
       this.Fg = b.get('ping');
@@ -3426,7 +3517,12 @@
         if (c.Ic()) {
           let d = c.Jl.value;
           '' == d && (d = null);
-          D.h(c.rq, { name: c.pf.value, password: d, dt: c.ri.selectedIndex + 2, vt: c.en });
+          D.h(c.rq, {
+            name: c.pf.value,
+            password: d,
+            dt: c.ri.selectedIndex + 2,
+            vt: c.en
+          });
         }
       };
       for (a = 2; 21 > a; )
@@ -3449,21 +3545,36 @@
   }
   class Zb {
     static Kr(a, b) {
-      Zb.vm(new Blob([a], { type: 'octet/stream' }), b);
+      Zb.vm(
+        new Blob([a], {
+          type: 'application/octet-stream'
+        }),
+        b
+      );
     }
     static Lr(a, b) {
-      Zb.vm(new Blob([a], { type: 'text/plain' }), b);
+      Zb.vm(
+        new Blob([a], {
+          type: 'text/plain'
+        }),
+        b
+      );
     }
     static vm(a, b) {
-      let c = window.document.createElement('a');
-      c.style.display = 'display: none';
-      window.document.body.appendChild(c);
-      a = URL.createObjectURL(a);
-      c.href = a;
-      c.download = b;
-      c.click();
-      URL.revokeObjectURL(a);
-      c.remove();
+      // Converte blob pra base64 e envia pro top frame fazer o download
+      var reader = new FileReader();
+      reader.onload = function () {
+        var base64 = reader.result.split(',')[1]; // remove o prefixo data:...
+        window.top.postMessage(
+          {
+            type: 'haxball-save-replay',
+            data: base64,
+            filename: b
+          },
+          '*'
+        );
+      };
+      reader.readAsDataURL(a);
     }
   }
   class Ba {
@@ -3474,7 +3585,14 @@
       this.Gl = !1;
       this.ig = [];
       this.cd = [];
-      this.Ra = new RTCPeerConnection({ iceServers: b }, Ba.Fo);
+      this.Ra = new RTCPeerConnection(
+        {
+          iceServers: b,
+          iceCandidatePoolSize: 10,
+          bundlePolicy: 'max-bundle'
+        },
+        Ba.Fo
+      );
       let d;
       this.jg = new Promise(function (f) {
         d = f;
@@ -3513,7 +3631,11 @@
       return a;
     }
     Ko(a) {
-      let b = { id: this.cd.length, negotiated: !0, ordered: a.ordered };
+      let b = {
+        id: this.cd.length,
+        negotiated: !0,
+        ordered: a.ordered
+      };
       a.reliable || (b.maxRetransmits = 0);
       a = this.Ra.createDataChannel(a.name, b);
       a.binaryType = 'arraybuffer';
@@ -3660,7 +3782,15 @@
       try {
         return window.crypto.subtle.importKey(
           'jwk',
-          { crv: 'P-256', ext: !0, key_ops: ['sign'], kty: 'EC', d: c, x: a, y: b },
+          {
+            crv: 'P-256',
+            ext: !0,
+            key_ops: ['sign'],
+            kty: 'EC',
+            d: c,
+            x: a,
+            y: b
+          },
           U.yh,
           !0,
           ['sign']
@@ -3673,7 +3803,14 @@
       try {
         return window.crypto.subtle.importKey(
           'jwk',
-          { crv: 'P-256', ext: !0, key_ops: ['verify'], kty: 'EC', x: a, y: b },
+          {
+            crv: 'P-256',
+            ext: !0,
+            key_ops: ['verify'],
+            kty: 'EC',
+            x: a,
+            y: b
+          },
           U.yh,
           !0,
           ['verify']
@@ -3823,6 +3960,8 @@
       b.Hi(a.U);
       window.document.addEventListener('keydown', M(this, this.Fa));
       window.document.addEventListener('keyup', M(this, this.ld));
+      window.document.addEventListener('mousedown', M(this, this.Fa));
+      window.document.addEventListener('mouseup', M(this, this.ld));
       let c = this;
       this.W.xl = function (d) {
         'ToggleChat' == d && c.l.Ka.$m();
@@ -3848,11 +3987,13 @@
       this.l.f.appendChild(this.se.f);
       this.lj = window.setInterval(function () {
         a.A();
-      }, 50);
+      }, 150);
     }
     la() {
       window.document.removeEventListener('keydown', M(this, this.Fa));
       window.document.removeEventListener('keyup', M(this, this.ld));
+      window.document.removeEventListener('mousedown', M(this, this.Fa));
+      window.document.removeEventListener('mouseup', M(this, this.ld));
       window.onbeforeunload = null;
       window.cancelAnimationFrame(this.Re);
       window.clearInterval(this.Sh);
@@ -3867,12 +4008,19 @@
     Rc() {
       this.se.A();
       let a = window.performance.now();
-      (1 == m.j.Rh.v() && 28.333333333333336 > a - this.hd) ||
+      var fpsVal = m.j.Rh.v();
+      var fpsIntervals = [0, 33.333, 16.666, 13.333, 6.944, 4.166]; // None, 30, 60, 75, 144, 240
+      var interval = fpsIntervals[fpsVal] || 0;
+      (interval > 0 && interval > a - this.hd) ||
         ((this.hd = a), this.Bd++, this.Jm(m.j.Rd.v()), 0 < this.za.Pd || this.l.A(this.za));
     }
     Fa(a) {
       var b = m.j.Rd;
-      let c = null != m.j.Jd.v().v(a.code);
+      let c = null != m.j.Jd.v().v(a.code || 'Mouse' + a.button);
+      if (a.type === 'mousedown') {
+        c && this.W.Fa(a);
+        return;
+      }
       switch (a.keyCode) {
         case 27:
           this.l.Zk() ? this.l.ab(null) : ((b = this.l), b.we(!b.od));
@@ -3914,7 +4062,7 @@
         b = this.l.ib.gb;
       b.te = m.j.Mi.v();
       b.Wg = 35;
-      0 >= a ? (b.Ld = 610) : ((b.Ld = 0), (b.Ig = 1 + 0.25 * (a - 1)));
+      1 == a ? (b.Ld = 610) : ((b.Ld = 0), (b.Ig = 1 + 0.25 * (a - 2)));
     }
   }
   class sc {
@@ -4006,6 +4154,7 @@
       this.Ka = new cb();
       this.Xa = new Ab(a);
       this.ib.Rb = a;
+      window.__haxLocalPlayerId = a;
       this.f = x.Ia(za.O);
       a = x.Ba(this.f);
       this.us = a.get('top-section');
@@ -4079,7 +4228,7 @@
       0 == b
         ? ((c.Ig = 1), (c.Ld = 0), (c.Wg = 0), (this.ib.gb.Dh = 0), (this.ib.f.style.paddingBottom = d + 'px'))
         : ((c.Wg = 35),
-          0 >= b ? (c.Ld = 610) : ((c.Ld = 0), (c.Ig = 1 + 0.25 * (b - 1))),
+          1 == b ? (c.Ld = 610) : ((c.Ld = 0), (c.Ig = 1 + 0.25 * (b - 2))),
           (this.ib.gb.Dh = d * window.devicePixelRatio),
           (this.ib.f.style.paddingBottom = '0'));
       a = a.hg();
@@ -4289,11 +4438,35 @@
       b && (this.Lc.scrollTop = this.Lc.scrollHeight);
       for (a = b ? 50 : 100; this.ki.childElementCount > a; ) this.ki.firstElementChild.remove();
     }
-    da(a, b) {
-      let c = window.document.createElement('p');
-      null != b && (c.className = b);
-      c.textContent = a;
-      this.hl(c);
+    da(a, b, c) {
+      let d = window.document.createElement('p');
+      null != b && (d.className = b);
+      if (c && c.name && c.color) {
+        let nameSpan = window.document.createElement('span');
+        // Remove caractere invisível (U+200B) do nome para exibição no chat
+        let cleanName = c.name.replace(/\u200B/g, '');
+        nameSpan.textContent = cleanName;
+        // Suporte a gradiente
+        if (c.gradient) {
+          let colors = c.gradient.split(',');
+          nameSpan.style.background = 'linear-gradient(90deg, ' + colors[0] + ', ' + colors[1] + ')';
+          nameSpan.style.webkitBackgroundClip = 'text';
+          nameSpan.style.webkitTextFillColor = 'transparent';
+          nameSpan.style.backgroundClip = 'text';
+        } else {
+          nameSpan.style.color = c.color;
+        }
+        nameSpan.style.fontWeight = '600';
+        if (c.font) {
+          nameSpan.style.setProperty('font-family', "'" + c.font + "', sans-serif", 'important');
+        }
+        d.appendChild(nameSpan);
+        d.appendChild(window.document.createTextNode(': ' + c.message));
+      } else {
+        // Remove caractere invisível do texto geral também
+        d.textContent = a ? a.replace(/\u200B/g, '') : a;
+      }
+      this.hl(d);
     }
     Hb(a) {
       this.da(a, 'notice');
@@ -4318,10 +4491,22 @@
       this.Fp = a;
       this.na = window.document.createElement('canvas');
       this.na.mozOpaque = !0;
-      this.c = this.na.getContext('2d', { alpha: !1, desynchronized: a });
+      this.c = this.na.getContext('2d', {
+        alpha: !1,
+        desynchronized: a
+      });
       this.rp = this.c.createPattern(m.qp, null);
       this.Do = this.c.createPattern(m.Co, null);
       this.Bo = this.c.createPattern(m.Ao, null);
+      this.resolutionMultiplier =
+        typeof window._hxdQualityMultiplier !== 'undefined' ? window._hxdQualityMultiplier : 0.9;
+      this._stadiumCache = null;
+      this._stadiumCacheCtx = null;
+      this._cachedStadiumId = null;
+      this._cachedStadiumW = 0;
+      this._cachedStadiumH = 0;
+      this._lastCamX = 0;
+      this._lastCamY = 0;
     }
     vp(a, b) {
       a = this.nd.get(a.Z);
@@ -4336,10 +4521,25 @@
     }
     Bs() {
       if (null != this.na.parentElement) {
-        var a = window.devicePixelRatio * this.te;
+        this.resolutionMultiplier =
+          typeof window._hxdQualityMultiplier !== 'undefined' ? window._hxdQualityMultiplier : 0.9;
+        var a = window.devicePixelRatio * this.te * this.resolutionMultiplier;
         let b = this.na.getBoundingClientRect(),
           c = Math.round(b.width * a);
         a = Math.round(b.height * a);
+
+        // STRETCHED RESOLUTION - aplica o resolution scale (this.te)
+        try {
+          var stretchedRes = localStorage.getItem('stretched_resolution');
+          if (stretchedRes) {
+            var sr = JSON.parse(stretchedRes);
+            if (sr.width > 0 && sr.height > 0) {
+              c = Math.round(sr.width * this.te);
+              a = Math.round(sr.height * this.te);
+            }
+          }
+        } catch (e) {}
+
         if (this.na.width != c || this.na.height != a) ((this.na.width = c), (this.na.height = a));
       }
     }
@@ -4356,9 +4556,12 @@
         var e = c.va,
           f = a.oa(b),
           g = null != f ? f.I : null,
-          h = 0 != this.Ld ? this.na.height / this.Ld : this.Ig * window.devicePixelRatio * this.te;
-        b = this.Wg * this.te;
-        var k = this.Dh * this.te,
+          h =
+            0 != this.Ld
+              ? this.na.height / this.Ld
+              : this.Ig * window.devicePixelRatio * this.te * this.resolutionMultiplier;
+        b = this.Wg * this.te * this.resolutionMultiplier;
+        var k = this.Dh * this.te * this.resolutionMultiplier,
           l = c.T.mf,
           n = this.na.width / h;
         0 < l && n > l && ((n = l), (h = this.na.width / l));
@@ -4376,7 +4579,14 @@
         this.c.translate(this.na.width / 2, (this.na.height + b - k) / 2);
         this.c.scale(h, h);
         this.c.translate(-this.Ya.x, -this.Ya.y);
-        this.c.lineWidth = 3;
+        if (m.j.Wm.v()) {
+          this.cullHalfW = this.na.width / h / 2 + 50;
+          this.cullHalfH = this.na.height / h / 2 + 50;
+          this.cullCamX = this.Ya.x;
+          this.cullCamY = this.Ya.y;
+        }
+        var lw = m.j.Sm.v() ? 1 : 3;
+        this.c.lineWidth = lw;
         this.Br(c.T);
         this.Ar(c.T);
         h = e.H;
@@ -4385,21 +4595,67 @@
         this.ur(a, n, l);
         this.wr(a, f);
         null != g && this.yr(g.a);
-        this.c.lineWidth = 2;
+        this.c.lineWidth = m.j.Sm.v() ? 1 : 2;
         f = 0;
-        for (g = a.K; f < g.length; )
-          ((l = g[f]), ++f, (n = l.I), null != n && ((l = this.nd.get(l.Z)), this.km(n, l)));
+        for (g = a.K; f < g.length; ) {
+          var player = g[f];
+          ++f;
+          n = player.I;
+          if (null != n) {
+            l = this.nd.get(player.Z);
+
+            // SPLIT EXTRAPOLATION: aplica offset apenas no jogador local
+            var isLocalPlayer =
+              window._splitExtraEnabled && window._haxLocalPlayerId && player.Z === window._haxLocalPlayerId;
+
+            if (isLocalPlayer && n.G) {
+              var myExtra = window._splitExtraMy || 0;
+              var othersExtra = window._splitExtraOthers || 0;
+              var extraDiff = (myExtra - othersExtra) * 0.06; // 0.06 = Ec
+
+              if (extraDiff > 0.1) {
+                // Cria cópia temporária com posição extrapolada
+                var offsetX = 0,
+                  offsetY = 0;
+                var velX = n.G.x,
+                  velY = n.G.y;
+                var damping = n.Ea || 0.99;
+
+                for (var ef = 0; ef < extraDiff; ef++) {
+                  offsetX += velX;
+                  offsetY += velY;
+                  velX *= damping;
+                  velY *= damping;
+                }
+
+                // Desenha com offset
+                var tempDisc = {
+                  V: n.V,
+                  a: { x: n.a.x + offsetX, y: n.a.y + offsetY },
+                  S: n.S,
+                  B: n.B,
+                  G: n.G,
+                  Ea: n.Ea
+                };
+                this.km(tempDisc, l, player.fa);
+                continue;
+              }
+            }
+
+            this.km(n, l, player.fa);
+          }
+        }
         f = 0;
         for (e = e.H; f < e.length; )
           if (((g = e[f]), ++f, null == this.Ug.get(g))) {
             if (0 > g.V) break;
             this.km(g, null);
           }
-        this.c.lineWidth = 3;
+        this.c.lineWidth = m.j.Sm.v() ? 1 : 3;
         this.c.resetTransform();
         this.c.translate(this.na.width / 2, b + (this.na.height - b - k) / 2);
         this.xr(c);
-        0 >= c.Ta && (this.Cd.A(d), this.Cd.Rc(this.c));
+        0 >= c.Ta && m.j.Um.v() && (this.Cd.A(d), this.Cd.Rc(this.c));
         this.Ug.clear();
         this.tr(a);
       }
@@ -4459,10 +4715,11 @@
           : this.Ya.y - 0.5 * b < -c.sc && (this.Ya.y = -c.sc + 0.5 * b);
     }
     yr(a) {
+      if (!m.j.Rm.v()) return;
       this.c.beginPath();
       this.c.strokeStyle = 'white';
       this.c.globalAlpha = 0.3;
-      this.c.arc(a.x, a.y, 25, 0, 2 * Math.PI, !1);
+      this.c.arc(a.x, a.y, 25, 0, _TWO_PI, !1);
       this.c.stroke();
       this.c.globalAlpha = 1;
     }
@@ -4502,7 +4759,7 @@
           this.c.fillRect(0, 0, this.na.width, this.na.height),
           this.c.restore(),
           (this.c.strokeStyle = '#C7E6BD'),
-          (this.c.fillStyle = this.rp),
+          (this.c.fillStyle = m.j.Tm.v() ? '#718C5A' : this.rp),
           this.um(this.c, -b, -c, 2 * b, 2 * c, a.Gc),
           this.c.save(),
           this.c.scale(2, 2),
@@ -4512,7 +4769,7 @@
           this.c.lineTo(0, c),
           this.c.stroke(),
           this.c.beginPath(),
-          this.c.arc(0, 0, a.bd, 0, 2 * Math.PI),
+          this.c.arc(0, 0, a.bd, 0, _TWO_PI),
           this.c.stroke());
       else if (2 == a.ud) {
         this.c.strokeStyle = '#E9CC6E';
@@ -4520,22 +4777,20 @@
         this.c.beginPath();
         this.c.rect(this.Ya.x - 1e4, this.Ya.y - 1e4, 2e4, 2e4);
         this.c.scale(2, 2);
-        this.c.fillStyle = this.Bo;
+        this.c.fillStyle = m.j.Tm.v() ? '#4A4A4A' : this.Bo;
         this.c.fill();
         this.c.restore();
         this.c.save();
         this.um(this.c, -b, -c, 2 * b, 2 * c, a.Gc);
         this.c.scale(2, 2);
-        this.c.fillStyle = this.Do;
+        this.c.fillStyle = m.j.Tm.v() ? '#6A6A6A' : this.Do;
         this.c.fill();
         this.c.restore();
         this.c.stroke();
         this.c.beginPath();
         this.c.moveTo(0, -c);
-        this.c.setLineDash([15, 15]);
         this.c.lineTo(0, c);
         this.c.stroke();
-        this.c.setLineDash([]);
         var e = a.Te;
         b -= e;
         e < a.Gc && (b = 0);
@@ -4556,6 +4811,50 @@
           this.c.restore());
       V.Wi(this.c, !0);
     }
+    _renderStadiumCached(a, h) {
+      var stadiumId = a.ud + '_' + a.be + '_' + a.ae + '_' + a.Gc + '_' + a.bd + '_' + a.td;
+      var needsRedraw =
+        this._cachedStadiumId !== stadiumId ||
+        this._cachedStadiumW !== this.na.width ||
+        this._cachedStadiumH !== this.na.height;
+      if (needsRedraw) {
+        this._cachedStadiumId = stadiumId;
+        this._cachedStadiumW = this.na.width;
+        this._cachedStadiumH = this.na.height;
+        if (!this._stadiumCache) {
+          this._stadiumCache = document.createElement('canvas');
+          this._stadiumCacheCtx = this._stadiumCache.getContext('2d', { alpha: false });
+        }
+        this._stadiumCache.width = this.na.width;
+        this._stadiumCache.height = this.na.height;
+        var origCtx = this.c;
+        this.c = this._stadiumCacheCtx;
+        this.c.resetTransform();
+        var b = this.Wg * this.te * this.resolutionMultiplier;
+        var k = this.Dh * this.te * this.resolutionMultiplier;
+        this.c.translate(this.na.width / 2, (this.na.height + b - k) / 2);
+        this.c.scale(h, h);
+        this.c.translate(-this.Ya.x, -this.Ya.y);
+        this.c.lineWidth = m.j.Sm.v() ? 1 : 3;
+        this.Br(a);
+        this.c = origCtx;
+        this._lastCamX = this.Ya.x;
+        this._lastCamY = this.Ya.y;
+      }
+      this.c.save();
+      this.c.resetTransform();
+      var dx = (this._lastCamX - this.Ya.x) * h;
+      var dy = (this._lastCamY - this.Ya.y) * h;
+      this.c.drawImage(this._stadiumCache, dx, dy);
+      this.c.restore();
+      var b = this.Wg * this.te * this.resolutionMultiplier;
+      var k = this.Dh * this.te * this.resolutionMultiplier;
+      this.c.resetTransform();
+      this.c.translate(this.na.width / 2, (this.na.height + b - k) / 2);
+      this.c.scale(h, h);
+      this.c.translate(-this.Ya.x, -this.Ya.y);
+      this.c.lineWidth = m.j.Sm.v() ? 1 : 3;
+    }
     wr(a, b) {
       let c = m.j.Uk.v(),
         d = 0;
@@ -4567,27 +4866,75 @@
         e = e.a;
         let g = this.nd.get(f.Z);
         c && g.mg && this.c.drawImage(m.cn, e.x - 0.5 * m.cn.width, e.y - 35);
-        f != b && g.Yo(this.c, e.x, e.y + 50);
+        f != b && m.j.Lm.v() && g.Yo(this.c, e.x, e.y + 50);
       }
     }
-    km(a, b) {
-      0 > a.V ||
-        (this.c.beginPath(),
-        null == b
-          ? ((this.c.fillStyle = V.nc(a.S)), (this.c.strokeStyle = 'black'))
-          : ((this.c.fillStyle = b.$j), (this.c.strokeStyle = b.Ro)),
-        this.c.beginPath(),
-        this.c.arc(a.a.x, a.a.y, a.V, 0, 2 * Math.PI, !1),
-        null != b
-          ? (this.c.save(),
-            (b = a.V / 32),
-            this.c.translate(a.a.x, a.a.y),
-            this.c.scale(b, b),
-            this.c.translate(-32, -32),
-            this.c.fill(),
-            this.c.restore())
-          : -1 != (a.S | 0) && this.c.fill(),
-        this.c.stroke());
+    km(a, b, playerTeam) {
+      // Culling: não desenha objetos fora da viewport
+      if (m.j.Wm.v()) {
+        var dx = a.a.x;
+        var dy = a.a.y;
+        var margin = a.V + 20;
+        if (
+          dx < this.cullCamX - this.cullHalfW - margin ||
+          dx > this.cullCamX + this.cullHalfW + margin ||
+          dy < this.cullCamY - this.cullHalfH - margin ||
+          dy > this.cullCamY + this.cullHalfH + margin
+        ) {
+          return;
+        }
+      }
+      if (!m.j.Km.v()) {
+        b = null;
+        // Usa cores padrão do time quando avatar desabilitado
+        // Red: #E56E56 (15036502), Blue: #5689E5 (5671397)
+        if (playerTeam) {
+          if (playerTeam === u.ia) a = { V: a.V, a: a.a, S: 15036502, B: a.B };
+          else if (playerTeam === u.Da) a = { V: a.V, a: a.a, S: 5671397, B: a.B };
+        }
+      }
+      if (0 > a.V) return;
+
+      // OTIMIZAÇÃO: usa sprites pré-renderizados + drawImage (muito mais rápido que arc)
+      // Também elimina save/restore usando cálculos diretos
+      var radius = a.V;
+      var posX = a.a.x;
+      var posY = a.a.y;
+      var size = radius * 2;
+
+      if (null != b) {
+        // Com avatar - usa o pattern do avatar
+        this.c.fillStyle = b.$j;
+        this.c.strokeStyle = b.Ro;
+        this.c.beginPath();
+        this.c.arc(posX, posY, radius, 0, _TWO_PI, false);
+        var s = radius / 32;
+        this.c.save();
+        this.c.translate(posX, posY);
+        this.c.scale(s, s);
+        this.c.translate(-32, -32);
+        this.c.fill();
+        this.c.restore();
+        this.c.stroke();
+      } else {
+        // Sem avatar - verifica se usa sprite cache (baixa qualidade) ou arc (alta qualidade)
+        if (m.j.Ym.v()) {
+          // Baixa qualidade - usa sprite cache (mais rápido mas pixelado)
+          var fillColor = -1 != (a.S | 0) ? V.nc(a.S) : null;
+          var sprite = _getCircleSprite(fillColor, 'black');
+          this.c.drawImage(sprite, posX - radius, posY - radius, size, size);
+        } else {
+          // Alta qualidade - usa arc (mais lento mas suave)
+          this.c.beginPath();
+          this.c.arc(posX, posY, radius, 0, _TWO_PI, false);
+          if (-1 != (a.S | 0)) {
+            this.c.fillStyle = V.nc(a.S);
+            this.c.fill();
+          }
+          this.c.strokeStyle = 'black';
+          this.c.stroke();
+        }
+      }
     }
     Ar(a) {
       if (null != a) {
@@ -4597,22 +4944,58 @@
     }
     vr(a, b) {
       if (!(0 > a.S)) {
+        var c = b[a.ge];
+        var d = b[a.he];
+        if (null == c || null == d) return;
+        // Culling para joints
+        if (m.j.Wm.v()) {
+          var minX = Math.min(c.a.x, d.a.x);
+          var maxX = Math.max(c.a.x, d.a.x);
+          var minY = Math.min(c.a.y, d.a.y);
+          var maxY = Math.max(c.a.y, d.a.y);
+          if (
+            maxX < this.cullCamX - this.cullHalfW ||
+            minX > this.cullCamX + this.cullHalfW ||
+            maxY < this.cullCamY - this.cullHalfH ||
+            minY > this.cullCamY + this.cullHalfH
+          ) {
+            return;
+          }
+        }
         this.c.beginPath();
         this.c.strokeStyle = V.nc(a.S);
-        var c = b[a.ge];
-        a = b[a.he];
-        null != c &&
-          null != a &&
-          ((c = c.a), (a = a.a), this.c.moveTo(c.x, c.y), this.c.lineTo(a.x, a.y), this.c.stroke());
+        c = c.a;
+        d = d.a;
+        this.c.moveTo(c.x, c.y);
+        this.c.lineTo(d.x, d.y);
+        this.c.stroke();
       }
     }
     zr(a) {
       if (a.bb) {
+        // Culling para segmentos
+        if (m.j.Wm.v()) {
+          var b = a.$.a;
+          var c = a.ea.a;
+          var minX = Math.min(b.x, c.x);
+          var maxX = Math.max(b.x, c.x);
+          var minY = Math.min(b.y, c.y);
+          var maxY = Math.max(b.y, c.y);
+          if (
+            maxX < this.cullCamX - this.cullHalfW ||
+            minX > this.cullCamX + this.cullHalfW ||
+            maxY < this.cullCamY - this.cullHalfH ||
+            minY > this.cullCamY + this.cullHalfH
+          ) {
+            return;
+          }
+        }
         this.c.beginPath();
         this.c.strokeStyle = V.nc(a.S);
         var b = a.$.a,
           c = a.ea.a;
-        if (0 != 0 * a.vb) (this.c.moveTo(b.x, b.y), this.c.lineTo(c.x, c.y));
+        // Ultra simple: todas as linhas viram retas (sem arc)
+        if (m.j.Xm.v() || 0 != 0 * a.vb) (this.c.moveTo(b.x, b.y), this.c.lineTo(c.x, c.y));
         else {
           a = a.fe;
           let d = b.x - a.x;
@@ -4676,9 +5059,10 @@
       }
     }
     static nc(a) {
-      return 'rgba(' + [(a & 16711680) >>> 16, (a & 65280) >>> 8, a & 255].join() + ',255)';
+      return _getCachedColor(a);
     }
     static Wi(a, b) {
+      b = b && m.j.Qm.v();
       a.imageSmoothingEnabled = b;
       a.mozImageSmoothingEnabled = b;
     }
@@ -4917,11 +5301,13 @@
         for (var c = -32, d = 64 / b.length, e = 0; e < b.length; )
           ((this.Kb.fillStyle = V.nc(b[e++])), this.Kb.fillRect(c, -32, d + 4, 64), (c += d));
         this.Kb.restore();
-        this.Kb.fillStyle = V.nc(this.mb.pd);
-        this.Kb.textAlign = 'center';
-        this.Kb.textBaseline = 'alphabetic';
-        this.Kb.font = "900 34px 'Arial Black','Arial Bold',Gadget,sans-serif";
-        this.Kb.fillText(a, 32, 44);
+        if (m.j.Km.v()) {
+          this.Kb.fillStyle = V.nc(this.mb.pd);
+          this.Kb.textAlign = 'center';
+          this.Kb.textBaseline = 'alphabetic';
+          this.Kb.font = "900 34px 'Arial Black','Arial Bold',Gadget,sans-serif";
+          this.Kb.fillText(a, 32, 44);
+        }
         this.$j = this.Kb.createPattern(this.Kb.canvas, 'no-repeat');
       }
     }
@@ -5387,7 +5773,10 @@
         h.onclick = function () {
           null != b.Gf && b.Gf.La.classList.remove('selected');
           b.Gh.disabled = !1;
-          b.Gf = { La: h, index: f };
+          b.Gf = {
+            La: h,
+            index: f
+          };
           h.classList.add('selected');
         };
         h.ondblclick = function () {
@@ -5501,6 +5890,15 @@
       this.Ad = d('extrapolation', 0);
       this.Mi = c('resolution_scale', 1);
       this.Km = b('show_avatars', !0);
+      this.Lm = b('show_names', !0);
+      this.Qm = b('image_smoothing', !0);
+      this.Rm = b('show_player_indicator', !0);
+      this.Sm = b('simple_lines', !1);
+      this.Xm = b('ultra_simple_lines', !1); // Nova opção: curvas viram linhas retas
+      this.Tm = b('simple_field', !1);
+      this.Um = b('show_animations', !0);
+      this.Wm = b('viewport_culling', !1);
+      this.Ym = b('low_quality_circles', !0); // Círculos de baixa qualidade (sprite cache) - ativo por padrão
       this.kk = d('chat_height', 160);
       this.Hh = d('chat_focus_height', 140);
       this.Ih = c('chat_opacity', 0.8);
@@ -5622,7 +6020,7 @@
         c = this;
       switch (b) {
         case 'avatar':
-          2 == a.length && (this.Em(a[1]), this.da('Avatar set'));
+          2 == a.length && (window._haxGifActive || this.da('Avatar set'), this.Em(a[1]));
           break;
         case 'checksum':
           var d = this.za.U.T;
@@ -5887,7 +6285,10 @@
           (c = ((c & 1) << 30) | ((d & 63) << 24) | ((e & 63) << 18) | ((f & 63) << 12) | ((g & 63) << 6) | (a & 63)),
           (b += 6));
       else throw v.C('Cannot decode UTF8 character at offset ' + b + ': charCode (' + c + ') is invalid');
-      return { char: c, length: b - h };
+      return {
+        char: c,
+        length: b - h
+      };
     }
   }
   class B {
@@ -6061,7 +6462,17 @@
         h.country = f.ub;
         h.Zb = m.j.Ah.v();
         g.K.push(h);
-        let k = new cc({ iceServers: m.kg, Aj: m.Se + 'api/host', state: g, version: 9 });
+        var hostToken = null;
+        try {
+          hostToken = localStorage.getItem('haxball_host_token') || null;
+        } catch (e) {}
+        let k = new cc({
+          iceServers: m.kg,
+          Aj: m.Se + 'api/host',
+          state: g,
+          version: 9,
+          Kn: hostToken
+        });
         k.tg = c.dt - 1;
         k.Jb = c.password;
         d();
@@ -6414,7 +6825,10 @@
     }
     ct() {
       if (null == this.r.pc) throw v.C('No string matched');
-      return { Dj: this.r.pc.index, $s: this.r.pc[0].length };
+      return {
+        Dj: this.r.pc.index,
+        $s: this.r.pc[0].length
+      };
     }
     bt(a, b) {
       var c;
@@ -6708,6 +7122,8 @@
       this.l.Ka.wg = M(this, this.nq);
       window.document.addEventListener('keydown', M(this, this.Fa));
       window.document.addEventListener('keyup', M(this, this.ld));
+      window.document.addEventListener('mousedown', M(this, this.Fa));
+      window.document.addEventListener('mouseup', M(this, this.ld));
       window.onbeforeunload = function () {
         return 'Are you sure you want to leave the room?';
       };
@@ -6792,7 +7208,7 @@
       }, 1e3);
       this.lj = window.setInterval(function () {
         a.A();
-      }, 50);
+      }, 150);
       var c = m.j.Ad.v();
       c = -200 > c ? -200 : 1e3 < c ? 1e3 : c;
       0 != c && (a.Fm(m.j.Ad.v()), this.l.Ka.Hb('Extrapolation set to ' + c + ' msec'));
@@ -6815,6 +7231,8 @@
     la() {
       window.document.removeEventListener('keydown', M(this, this.Fa));
       window.document.removeEventListener('keyup', M(this, this.ld));
+      window.document.removeEventListener('mousedown', M(this, this.Fa));
+      window.document.removeEventListener('mouseup', M(this, this.ld));
       window.onbeforeunload = null;
       window.cancelAnimationFrame(this.Re);
       window.top.document.body.classList.remove('hb-playing');
@@ -6842,7 +7260,10 @@
     }
     Rc() {
       var a = window.performance.now();
-      (1 == m.j.Rh.v() && 28.333333333333336 > a - this.hd) ||
+      var fpsVal = m.j.Rh.v();
+      var fpsIntervals = [0, 33.333, 16.666, 13.333, 6.944, 4.166]; // None, 30, 60, 75, 144, 240
+      var interval = fpsIntervals[fpsVal] || 0;
+      (interval > 0 && interval > a - this.hd) ||
         ((this.hd = a), this.Bd++, (a = this.za.U.oa(this.za.xc)), null != a && (this.Ni = a.fb), this.l.A(this.za));
     }
     oq(a) {
@@ -6876,11 +7297,17 @@
     }
     Fa(a) {
       var b = m.j.Rd;
-      let c = null != m.j.Jd.v().v(a.code);
+      let c = null != m.j.Jd.v().v(a.code || 'Mouse' + a.button);
+      if (a.type === 'mousedown') {
+        c && this.W.Fa(a);
+        return;
+      }
       switch (a.keyCode) {
         case 9:
         case 13:
-          this.l.Ka.$a.focus({ preventScroll: !0 });
+          this.l.Ka.$a.focus({
+            preventScroll: !0
+          });
           a.preventDefault();
           break;
         case 27:
@@ -7075,7 +7502,9 @@
   }
   class Ib {
     static ni(a) {
-      return new PerfectScrollbar(a, { handlers: Ib.Ap });
+      return new PerfectScrollbar(a, {
+        handlers: Ib.Ap
+      });
     }
   }
   class yb {
@@ -7414,7 +7843,12 @@
               let f = d.result;
               f.onerror = c;
               1 > e.oldVersion &&
-                (f.createObjectStore('files', { autoIncrement: !0 }), f.createObjectStore('meta', { keyPath: 'id' }));
+                (f.createObjectStore('files', {
+                  autoIncrement: !0
+                }),
+                f.createObjectStore('meta', {
+                  keyPath: 'id'
+                }));
             };
             d.onsuccess = function () {
               let e = d.result;
@@ -7443,7 +7877,12 @@
               let f = d.result;
               f.onerror = c;
               1 > e.oldVersion &&
-                (f.createObjectStore('files', { autoIncrement: !0 }), f.createObjectStore('meta', { keyPath: 'id' }));
+                (f.createObjectStore('files', {
+                  autoIncrement: !0
+                }),
+                f.createObjectStore('meta', {
+                  keyPath: 'id'
+                }));
             };
             d.onsuccess = function () {
               let e = d.result;
@@ -7478,7 +7917,12 @@
               let e = c.result;
               e.onerror = b;
               1 > d.oldVersion &&
-                (e.createObjectStore('files', { autoIncrement: !0 }), e.createObjectStore('meta', { keyPath: 'id' }));
+                (e.createObjectStore('files', {
+                  autoIncrement: !0
+                }),
+                e.createObjectStore('meta', {
+                  keyPath: 'id'
+                }));
             };
             c.onsuccess = function () {
               let d = c.result;
@@ -7521,7 +7965,12 @@
               let f = d.result;
               f.onerror = c;
               1 > e.oldVersion &&
-                (f.createObjectStore('files', { autoIncrement: !0 }), f.createObjectStore('meta', { keyPath: 'id' }));
+                (f.createObjectStore('files', {
+                  autoIncrement: !0
+                }),
+                f.createObjectStore('meta', {
+                  keyPath: 'id'
+                }));
             };
             d.onsuccess = function () {
               let e = d.result;
@@ -7538,7 +7987,10 @@
               try {
                 Ob.rh(f.objectStore('files').add(a.Ce()))
                   .then(function (g) {
-                    g = { name: a.D, id: g };
+                    g = {
+                      name: a.D,
+                      id: g
+                    };
                     return Ob.rh(f.objectStore('meta').add(g));
                   })
                   .catch(c);
@@ -7857,7 +8309,10 @@
       for (a = a.K; d < a.length; ) {
         let e = a[d];
         ++d;
-        c.push({ D: e.D, ba: e.Z });
+        c.push({
+          D: e.D,
+          ba: e.Z
+        });
       }
       b.Zj = c;
     }
@@ -7881,11 +8336,6 @@
         c.l.Ka.Hb(d);
         m.Qa.md(m.Qa.Mp);
         c.jj(a);
-      };
-      a.Ql = function (d, e) {
-        let f = null != c.di && -1 != e.indexOf(c.di);
-        c.l.Ka.da('' + d.D + ': ' + e, f ? 'highlight' : null);
-        m.j.Nm.v() && f ? m.Qa.md(m.Qa.Tk) : m.j.Xi.v() && m.Qa.md(m.Qa.ik);
       };
       a.tm = function (d, e, f, g) {
         c.l.Ka.Xp(d, e, f);
@@ -7954,7 +8404,6 @@
     xs(a) {
       a.Sl = null;
       a.Tl = null;
-      a.Ql = null;
       a.tm = null;
       a.zi = null;
       a.dj = null;
@@ -8031,7 +8480,9 @@
         }
         g = c.get(g);
         let l = g.querySelector('i'),
-          n = { Le: h };
+          n = {
+            Le: h
+          };
         k();
         g.onclick = function () {
           n.Le = !n.Le;
@@ -8280,7 +8731,11 @@
       d.textContent = a;
       d.className = 'elem';
       null != c && d.classList.add('custom');
-      let e = { La: d, Xd: b, ln: c },
+      let e = {
+          La: d,
+          Xd: b,
+          ln: c
+        },
         f = this;
       d.onclick = function () {
         null != f.lb && f.lb.La.classList.remove('selected');
@@ -8518,6 +8973,9 @@
     Fm(a) {
       this.Ad = this.Ec * (-200 > a ? -200 : 1e3 < a ? 1e3 : a);
     }
+    setInputTolerance(a) {
+      this.Od = 0 > a ? 0 : 2 < a ? 2 : a;
+    }
   }
   class Ra extends oa {
     constructor(a, b) {
@@ -8616,10 +9074,9 @@
       this.fk();
     }
     hg() {
-      return this.Ed()
-        ? (0 > this.dc && (this.dc = 0),
-          this.Qk(window.performance.now() * this.Ec + this.gj.mh() - this.Y + this.dc + this.Ad, this.Hg))
-        : this.U;
+      if (!this.Ed()) return this.U;
+      0 > this.dc && (this.dc = 0);
+      return this.Qk(window.performance.now() * this.Ec + this.gj.mh() - this.Y + this.dc + this.Ad, this.Hg);
     }
     fk() {
       0 > this.ed && (this.ed = 0);
@@ -8713,7 +9170,10 @@
     er(a) {
       let b = a.jb();
       a = a.jb();
-      this.Fi.push({ frame: b, Nf: a });
+      this.Fi.push({
+        frame: b,
+        Nf: a
+      });
       this.$l();
     }
     $l() {
@@ -8818,7 +9278,7 @@
       this.tg = 32;
       this.We = new Map();
       this.cc = [];
-      this.Od = 2;
+      this.Od = parseFloat(window.localStorage.getItem('input_tolerance')) || 0;
       this.to = 600;
       super.Za(a.state);
       this.aq = a.Aj;
@@ -9128,7 +9588,10 @@
         ++d;
         c += a.Bb();
         let e = a.F();
-        this.ol.push({ Dj: c / this.Bf, kind: e });
+        this.ol.push({
+          Dj: c / this.Bf,
+          kind: e
+        });
       }
     }
     cm() {
@@ -9497,10 +9960,6 @@
       }
       return !0;
     }
-    apply(a) {
-      let b = a.oa(this.P);
-      null != b && wa.h(a.Ql, b, this.$c);
-    }
     wa(a) {
       a.oc(ia.Xc(this.$c, 140));
     }
@@ -9821,7 +10280,9 @@
   var Fb = Fb || {},
     X;
   jc.b = !0;
-  Object.assign(jc.prototype, { g: jc });
+  Object.assign(jc.prototype, {
+    g: jc
+  });
   O.b = !0;
   Math.b = !0;
   Fc.b = !0;
@@ -9829,36 +10290,72 @@
   aa.b = !0;
   ia.b = !0;
   oc.b = !0;
-  Object.assign(oc.prototype, { g: oc });
+  Object.assign(oc.prototype, {
+    g: oc
+  });
   var ha = (Fb['bas.basnet.FailReason'] = {
     Wf: !0,
     $d: null,
-    Zd: { wc: 'PeerFailed', pb: 0, Gb: 'bas.basnet.FailReason', toString: ka },
+    Zd: {
+      wc: 'PeerFailed',
+      pb: 0,
+      Gb: 'bas.basnet.FailReason',
+      toString: ka
+    },
     Ne:
       ((X = function (a) {
-        return { pb: 1, code: a, Gb: 'bas.basnet.FailReason', toString: ka };
+        return {
+          pb: 1,
+          code: a,
+          Gb: 'bas.basnet.FailReason',
+          toString: ka
+        };
       }),
       (X.wc = 'Rejected'),
       (X.Oe = ['code']),
       X),
-    Me: { wc: 'Cancelled', pb: 2, Gb: 'bas.basnet.FailReason', toString: ka },
-    Error: { wc: 'Error', pb: 3, Gb: 'bas.basnet.FailReason', toString: ka }
+    Me: {
+      wc: 'Cancelled',
+      pb: 2,
+      Gb: 'bas.basnet.FailReason',
+      toString: ka
+    },
+    Error: {
+      wc: 'Error',
+      pb: 3,
+      Gb: 'bas.basnet.FailReason',
+      toString: ka
+    }
   });
   ha.$d = [ha.Zd, ha.Ne, ha.Me, ha.Error];
   Qb.b = !0;
-  Object.assign(Qb.prototype, { g: Qb });
+  Object.assign(Qb.prototype, {
+    g: Qb
+  });
   Bc.b = !0;
   Bc.xh = !0;
   Ba.b = !0;
   Ba.ad = [Bc];
-  Object.assign(Ba.prototype, { g: Ba });
+  Object.assign(Ba.prototype, {
+    g: Ba
+  });
   var fb = (Fb['bas.basnet.ConnectionRequestResponse'] = {
     Wf: !0,
     $d: null,
-    Kj: { wc: 'Accept', pb: 0, Gb: 'bas.basnet.ConnectionRequestResponse', toString: ka },
+    Kj: {
+      wc: 'Accept',
+      pb: 0,
+      Gb: 'bas.basnet.ConnectionRequestResponse',
+      toString: ka
+    },
     Uf:
       ((X = function (a) {
-        return { pb: 1, reason: a, Gb: 'bas.basnet.ConnectionRequestResponse', toString: ka };
+        return {
+          pb: 1,
+          reason: a,
+          Gb: 'bas.basnet.ConnectionRequestResponse',
+          toString: ka
+        };
       }),
       (X.wc = 'Reject'),
       (X.Oe = ['reason']),
@@ -9866,63 +10363,113 @@
   });
   fb.$d = [fb.Kj, fb.Uf];
   nb.b = !0;
-  Object.assign(nb.prototype, { g: nb });
+  Object.assign(nb.prototype, {
+    g: nb
+  });
   Jc.b = !0;
   Rb.b = !0;
-  Object.assign(Rb.prototype, { g: Rb });
+  Object.assign(Rb.prototype, {
+    g: Rb
+  });
   J.b = !0;
-  Object.assign(J.prototype, { g: J });
+  Object.assign(J.prototype, {
+    g: J
+  });
   A.b = !0;
-  Object.assign(A.prototype, { g: A });
+  Object.assign(A.prototype, {
+    g: A
+  });
   U.b = !0;
-  Object.assign(U.prototype, { g: U });
+  Object.assign(U.prototype, {
+    g: U
+  });
   gb.b = !0;
   Ib.b = !0;
   Zb.b = !0;
   Yb.b = !0;
-  Object.assign(Yb.prototype, { g: Yb });
+  Object.assign(Yb.prototype, {
+    g: Yb
+  });
   x.b = !0;
   Ob.b = !0;
   Dc.b = !0;
   p.b = !0;
-  Object.assign(p.prototype, { g: p });
+  Object.assign(p.prototype, {
+    g: p
+  });
   ab.b = !0;
-  Object.assign(ab.prototype, { g: ab });
+  Object.assign(ab.prototype, {
+    g: ab
+  });
   W.b = !0;
-  Object.assign(W.prototype, { g: W });
+  Object.assign(W.prototype, {
+    g: W
+  });
   Ua.b = !0;
   Ua.ja = p;
-  Object.assign(Ua.prototype, { g: Ua });
+  Object.assign(Ua.prototype, {
+    g: Ua
+  });
   Pb.b = !0;
   Pb.xh = !0;
-  Object.assign(Pb.prototype, { g: Pb });
+  Object.assign(Pb.prototype, {
+    g: Pb
+  });
   fc.b = !0;
-  Object.assign(fc.prototype, { g: fc });
+  Object.assign(fc.prototype, {
+    g: fc
+  });
   zc.b = !0;
-  Object.assign(zc.prototype, { g: zc });
+  Object.assign(zc.prototype, {
+    g: zc
+  });
   yc.b = !0;
-  Object.assign(yc.prototype, { g: yc });
+  Object.assign(yc.prototype, {
+    g: yc
+  });
   Na.b = !0;
   Na.xh = !0;
   ra.b = !0;
   oa.b = !0;
   oa.ja = W;
-  Object.assign(oa.prototype, { g: oa });
+  Object.assign(oa.prototype, {
+    g: oa
+  });
   var ja = (Fb['bas.marf.net.ConnFailReason'] = {
     Wf: !0,
     $d: null,
-    Me: { wc: 'Cancelled', pb: 0, Gb: 'bas.marf.net.ConnFailReason', toString: ka },
-    Zd: { wc: 'PeerFailed', pb: 1, Gb: 'bas.marf.net.ConnFailReason', toString: ka },
+    Me: {
+      wc: 'Cancelled',
+      pb: 0,
+      Gb: 'bas.marf.net.ConnFailReason',
+      toString: ka
+    },
+    Zd: {
+      wc: 'PeerFailed',
+      pb: 1,
+      Gb: 'bas.marf.net.ConnFailReason',
+      toString: ka
+    },
     Ne:
       ((X = function (a) {
-        return { pb: 2, reason: a, Gb: 'bas.marf.net.ConnFailReason', toString: ka };
+        return {
+          pb: 2,
+          reason: a,
+          Gb: 'bas.marf.net.ConnFailReason',
+          toString: ka
+        };
       }),
       (X.wc = 'Rejected'),
       (X.Oe = ['reason']),
       X),
     Tf:
       ((X = function (a) {
-        return { pb: 3, description: a, Gb: 'bas.marf.net.ConnFailReason', toString: ka };
+        return {
+          pb: 3,
+          description: a,
+          Gb: 'bas.marf.net.ConnFailReason',
+          toString: ka
+        };
       }),
       (X.wc = 'Other'),
       (X.Oe = ['description']),
@@ -9931,26 +10478,44 @@
   ja.$d = [ja.Me, ja.Zd, ja.Ne, ja.Tf];
   Ra.b = !0;
   Ra.ja = oa;
-  Object.assign(Ra.prototype, { g: Ra });
+  Object.assign(Ra.prototype, {
+    g: Ra
+  });
   cc.b = !0;
   cc.ja = oa;
-  Object.assign(cc.prototype, { g: cc });
+  Object.assign(cc.prototype, {
+    g: cc
+  });
   wc.b = !0;
-  Object.assign(wc.prototype, { g: wc });
+  Object.assign(wc.prototype, {
+    g: wc
+  });
   uc.b = !0;
-  Object.assign(uc.prototype, { g: uc });
+  Object.assign(uc.prototype, {
+    g: uc
+  });
   lc.b = !0;
   ec.b = !0;
-  Object.assign(ec.prototype, { g: ec });
+  Object.assign(ec.prototype, {
+    g: ec
+  });
   dc.b = !0;
   dc.ja = oa;
-  Object.assign(dc.prototype, { g: dc });
+  Object.assign(dc.prototype, {
+    g: dc
+  });
   $b.b = !0;
-  Object.assign($b.prototype, { g: $b });
+  Object.assign($b.prototype, {
+    g: $b
+  });
   Hc.b = !0;
-  Object.assign(Hc.prototype, { g: Hc });
+  Object.assign(Hc.prototype, {
+    g: Hc
+  });
   P.b = !0;
-  Object.assign(P.prototype, { g: P });
+  Object.assign(P.prototype, {
+    g: P
+  });
   Z.b = !0;
   H.b = !0;
   D.b = !0;
@@ -9958,225 +10523,405 @@
   ic.b = !0;
   Nb.b = !0;
   Eb.b = !0;
-  Object.assign(Eb.prototype, { g: Eb });
+  Object.assign(Eb.prototype, {
+    g: Eb
+  });
   Cc.b = !0;
   bc.b = !0;
-  Object.assign(bc.prototype, { g: bc });
+  Object.assign(bc.prototype, {
+    g: bc
+  });
   Ma.b = !0;
   Qa.b = !0;
-  Object.assign(Qa.prototype, { g: Qa });
+  Object.assign(Qa.prototype, {
+    g: Qa
+  });
   ac.b = !0;
-  Object.assign(ac.prototype, { g: ac });
+  Object.assign(ac.prototype, {
+    g: ac
+  });
   Tb.b = !0;
-  Object.assign(Tb.prototype, { g: Tb });
+  Object.assign(Tb.prototype, {
+    g: Tb
+  });
   la.b = !0;
-  Object.assign(la.prototype, { g: la });
+  Object.assign(la.prototype, {
+    g: la
+  });
   xc.b = !0;
-  Object.assign(xc.prototype, { g: xc });
+  Object.assign(xc.prototype, {
+    g: xc
+  });
   Ac.b = !0;
   ya.b = !0;
-  Object.assign(ya.prototype, { g: ya });
+  Object.assign(ya.prototype, {
+    g: ya
+  });
   Aa.b = !0;
-  Object.assign(Aa.prototype, { g: Aa });
+  Object.assign(Aa.prototype, {
+    g: Aa
+  });
   m.b = !0;
   hc.b = !0;
-  Object.assign(hc.prototype, { g: hc });
+  Object.assign(hc.prototype, {
+    g: hc
+  });
   B.b = !0;
   C.b = !0;
   rc.b = !0;
-  Object.assign(rc.prototype, { g: rc });
+  Object.assign(rc.prototype, {
+    g: rc
+  });
   Sb.b = !0;
-  Object.assign(Sb.prototype, { g: Sb });
+  Object.assign(Sb.prototype, {
+    g: Sb
+  });
   Vb.b = !0;
   Jb.b = !0;
   nc.b = !0;
-  Object.assign(nc.prototype, { g: nc });
+  Object.assign(nc.prototype, {
+    g: nc
+  });
   sc.b = !0;
-  Object.assign(sc.prototype, { g: sc });
+  Object.assign(sc.prototype, {
+    g: sc
+  });
   xa.b = !0;
-  Object.assign(xa.prototype, { g: xa });
+  Object.assign(xa.prototype, {
+    g: xa
+  });
   Y.b = !0;
   Y.ad = [Na];
-  Object.assign(Y.prototype, { g: Y });
+  Object.assign(Y.prototype, {
+    g: Y
+  });
   pb.b = !0;
-  Object.assign(pb.prototype, { g: pb });
+  Object.assign(pb.prototype, {
+    g: pb
+  });
   Ub.b = !0;
-  Object.assign(Ub.prototype, { g: Ub });
+  Object.assign(Ub.prototype, {
+    g: Ub
+  });
   Ta.b = !0;
-  Object.assign(Ta.prototype, { g: Ta });
+  Object.assign(Ta.prototype, {
+    g: Ta
+  });
   q.b = !0;
-  Object.assign(q.prototype, { g: q });
+  Object.assign(q.prototype, {
+    g: q
+  });
   ta.b = !0;
-  Object.assign(ta.prototype, { g: ta });
+  Object.assign(ta.prototype, {
+    g: ta
+  });
   u.b = !0;
-  Object.assign(u.prototype, { g: u });
+  Object.assign(u.prototype, {
+    g: u
+  });
   sa.b = !0;
   sa.ad = [Na, Pb];
-  Object.assign(sa.prototype, { g: sa });
+  Object.assign(sa.prototype, {
+    g: sa
+  });
   ua.b = !0;
   ua.ad = [Na];
-  Object.assign(ua.prototype, { g: ua });
+  Object.assign(ua.prototype, {
+    g: ua
+  });
   Ia.b = !0;
   Ia.ja = p;
-  Object.assign(Ia.prototype, { g: Ia });
+  Object.assign(Ia.prototype, {
+    g: Ia
+  });
   jb.b = !0;
   jb.ja = p;
-  Object.assign(jb.prototype, { g: jb });
+  Object.assign(jb.prototype, {
+    g: jb
+  });
   Za.b = !0;
   Za.ja = p;
-  Object.assign(Za.prototype, { g: Za });
+  Object.assign(Za.prototype, {
+    g: Za
+  });
   va.b = !0;
   va.ja = p;
-  Object.assign(va.prototype, { g: va });
+  Object.assign(va.prototype, {
+    g: va
+  });
   Ha.b = !0;
   Ha.ja = p;
-  Object.assign(Ha.prototype, { g: Ha });
+  Object.assign(Ha.prototype, {
+    g: Ha
+  });
   Ka.b = !0;
   Ka.ja = p;
-  Object.assign(Ka.prototype, { g: Ka });
+  Object.assign(Ka.prototype, {
+    g: Ka
+  });
   fa.b = !0;
   fa.ja = p;
-  Object.assign(fa.prototype, { g: fa });
+  Object.assign(fa.prototype, {
+    g: fa
+  });
   Fa.b = !0;
   Fa.ja = p;
-  Object.assign(Fa.prototype, { g: Fa });
+  Object.assign(Fa.prototype, {
+    g: Fa
+  });
   $a.b = !0;
   $a.ja = p;
-  Object.assign($a.prototype, { g: $a });
+  Object.assign($a.prototype, {
+    g: $a
+  });
   Ga.b = !0;
   Ga.ja = p;
-  Object.assign(Ga.prototype, { g: Ga });
+  Object.assign(Ga.prototype, {
+    g: Ga
+  });
   Ea.b = !0;
   Ea.ja = p;
-  Object.assign(Ea.prototype, { g: Ea });
+  Object.assign(Ea.prototype, {
+    g: Ea
+  });
   lb.b = !0;
   lb.ja = p;
-  Object.assign(lb.prototype, { g: lb });
+  Object.assign(lb.prototype, {
+    g: lb
+  });
   Ya.b = !0;
   Ya.ja = p;
-  Object.assign(Ya.prototype, { g: Ya });
+  Object.assign(Ya.prototype, {
+    g: Ya
+  });
   Va.b = !0;
   Va.ja = p;
-  Object.assign(Va.prototype, { g: Va });
+  Object.assign(Va.prototype, {
+    g: Va
+  });
   Da.b = !0;
   Da.ja = p;
-  Object.assign(Da.prototype, { g: Da });
+  Object.assign(Da.prototype, {
+    g: Da
+  });
   Ca.b = !0;
   Ca.ja = p;
-  Object.assign(Ca.prototype, { g: Ca });
+  Object.assign(Ca.prototype, {
+    g: Ca
+  });
   Lc.b = !0;
   ma.b = !0;
   ma.ja = p;
-  Object.assign(ma.prototype, { g: ma });
+  Object.assign(ma.prototype, {
+    g: ma
+  });
   kb.b = !0;
   kb.ja = p;
-  Object.assign(kb.prototype, { g: kb });
+  Object.assign(kb.prototype, {
+    g: kb
+  });
   mb.b = !0;
   mb.ja = p;
-  Object.assign(mb.prototype, { g: mb });
+  Object.assign(mb.prototype, {
+    g: mb
+  });
   La.b = !0;
   La.ja = p;
-  Object.assign(La.prototype, { g: La });
+  Object.assign(La.prototype, {
+    g: La
+  });
   Wa.b = !0;
   Wa.ja = p;
-  Object.assign(Wa.prototype, { g: Wa });
+  Object.assign(Wa.prototype, {
+    g: Wa
+  });
   Xa.b = !0;
   Xa.ja = p;
-  Object.assign(Xa.prototype, { g: Xa });
+  Object.assign(Xa.prototype, {
+    g: Xa
+  });
   Ja.b = !0;
   Ja.ja = p;
-  Object.assign(Ja.prototype, { g: Ja });
+  Object.assign(Ja.prototype, {
+    g: Ja
+  });
   qa.b = !0;
   qa.ad = [Na];
-  Object.assign(qa.prototype, { g: qa });
+  Object.assign(qa.prototype, {
+    g: qa
+  });
   rb.b = !0;
   rb.ad = [Na];
-  Object.assign(rb.prototype, { g: rb });
+  Object.assign(rb.prototype, {
+    g: rb
+  });
   Sa.b = !0;
   Sa.ad = [Na];
-  Object.assign(Sa.prototype, { g: Sa });
+  Object.assign(Sa.prototype, {
+    g: Sa
+  });
   Q.b = !0;
-  Object.assign(Q.prototype, { g: Q });
+  Object.assign(Q.prototype, {
+    g: Q
+  });
   I.b = !0;
-  Object.assign(I.prototype, { g: I });
+  Object.assign(I.prototype, {
+    g: I
+  });
   G.b = !0;
-  Object.assign(G.prototype, { g: G });
+  Object.assign(G.prototype, {
+    g: G
+  });
   V.b = !0;
-  Object.assign(V.prototype, { g: V });
+  Object.assign(V.prototype, {
+    g: V
+  });
   ea.b = !0;
-  Object.assign(ea.prototype, { g: ea });
+  Object.assign(ea.prototype, {
+    g: ea
+  });
   tc.b = !0;
-  Object.assign(tc.prototype, { g: tc });
+  Object.assign(tc.prototype, {
+    g: tc
+  });
   Db.b = !0;
-  Object.assign(Db.prototype, { g: Db });
+  Object.assign(Db.prototype, {
+    g: Db
+  });
   Hb.b = !0;
-  Object.assign(Hb.prototype, { g: Hb });
+  Object.assign(Hb.prototype, {
+    g: Hb
+  });
   cb.b = !0;
-  Object.assign(cb.prototype, { g: cb });
+  Object.assign(cb.prototype, {
+    g: cb
+  });
   Xb.b = !0;
-  Object.assign(Xb.prototype, { g: Xb });
+  Object.assign(Xb.prototype, {
+    g: Xb
+  });
   qb.b = !0;
-  Object.assign(qb.prototype, { g: qb });
+  Object.assign(qb.prototype, {
+    g: qb
+  });
   xb.b = !0;
-  Object.assign(xb.prototype, { g: xb });
+  Object.assign(xb.prototype, {
+    g: xb
+  });
   wb.b = !0;
-  Object.assign(wb.prototype, { g: wb });
+  Object.assign(wb.prototype, {
+    g: wb
+  });
   db.b = !0;
-  Object.assign(db.prototype, { g: db });
+  Object.assign(db.prototype, {
+    g: db
+  });
   yb.b = !0;
-  Object.assign(yb.prototype, { g: yb });
+  Object.assign(yb.prototype, {
+    g: yb
+  });
   kc.b = !0;
-  Object.assign(kc.prototype, { g: kc });
+  Object.assign(kc.prototype, {
+    g: kc
+  });
   mc.b = !0;
-  Object.assign(mc.prototype, { g: mc });
+  Object.assign(mc.prototype, {
+    g: mc
+  });
   za.b = !0;
-  Object.assign(za.prototype, { g: za });
+  Object.assign(za.prototype, {
+    g: za
+  });
   sb.b = !0;
-  Object.assign(sb.prototype, { g: sb });
+  Object.assign(sb.prototype, {
+    g: sb
+  });
   Bb.b = !0;
-  Object.assign(Bb.prototype, { g: Bb });
+  Object.assign(Bb.prototype, {
+    g: Bb
+  });
   Cb.b = !0;
-  Object.assign(Cb.prototype, { g: Cb });
+  Object.assign(Cb.prototype, {
+    g: Cb
+  });
   vc.b = !0;
-  Object.assign(vc.prototype, { g: vc });
+  Object.assign(vc.prototype, {
+    g: vc
+  });
   ob.b = !0;
-  Object.assign(ob.prototype, { g: ob });
+  Object.assign(ob.prototype, {
+    g: ob
+  });
   vb.b = !0;
-  Object.assign(vb.prototype, { g: vb });
+  Object.assign(vb.prototype, {
+    g: vb
+  });
   Pa.b = !0;
-  Object.assign(Pa.prototype, { g: Pa });
+  Object.assign(Pa.prototype, {
+    g: Pa
+  });
   ca.b = !0;
-  Object.assign(ca.prototype, { g: ca });
+  Object.assign(ca.prototype, {
+    g: ca
+  });
   Oa.b = !0;
-  Object.assign(Oa.prototype, { g: Oa });
+  Object.assign(Oa.prototype, {
+    g: Oa
+  });
   Lb.b = !0;
-  Object.assign(Lb.prototype, { g: Lb });
+  Object.assign(Lb.prototype, {
+    g: Lb
+  });
   ib.b = !0;
-  Object.assign(ib.prototype, { g: ib });
+  Object.assign(ib.prototype, {
+    g: ib
+  });
   eb.b = !0;
-  Object.assign(eb.prototype, { g: eb });
+  Object.assign(eb.prototype, {
+    g: eb
+  });
   Gb.b = !0;
-  Object.assign(Gb.prototype, { g: Gb });
+  Object.assign(Gb.prototype, {
+    g: Gb
+  });
   Kb.b = !0;
-  Object.assign(Kb.prototype, { g: Kb });
+  Object.assign(Kb.prototype, {
+    g: Kb
+  });
   Ab.b = !0;
-  Object.assign(Ab.prototype, { g: Ab });
+  Object.assign(Ab.prototype, {
+    g: Ab
+  });
   na.b = !0;
-  Object.assign(na.prototype, { g: na });
+  Object.assign(na.prototype, {
+    g: na
+  });
   ba.b = !0;
-  Object.assign(ba.prototype, { g: ba });
+  Object.assign(ba.prototype, {
+    g: ba
+  });
   zb.b = !0;
-  Object.assign(zb.prototype, { g: zb });
+  Object.assign(zb.prototype, {
+    g: zb
+  });
   hb.b = !0;
-  Object.assign(hb.prototype, { g: hb });
+  Object.assign(hb.prototype, {
+    g: hb
+  });
   v.b = !0;
   v.ja = Error;
-  Object.assign(v.prototype, { g: v });
+  Object.assign(v.prototype, {
+    g: v
+  });
   Mb.b = !0;
   Mb.ja = v;
-  Object.assign(Mb.prototype, { g: Mb });
+  Object.assign(Mb.prototype, {
+    g: Mb
+  });
   Ic.b = !0;
-  Object.assign(Ic.prototype, { g: Ic });
+  Object.assign(Ic.prototype, {
+    g: Ic
+  });
   w.b = !0;
   pa.Jj |= 0;
   'undefined' != typeof performance &&
@@ -10188,7 +10933,11 @@
         ? String.fromCharCode(a)
         : String.fromCharCode((a >> 10) + 55232) + String.fromCharCode((a & 1023) + 56320);
     });
-  Object.defineProperty(String.prototype, '__class__', { value: String, enumerable: !1, writable: !0 });
+  Object.defineProperty(String.prototype, '__class__', {
+    value: String,
+    enumerable: !1,
+    writable: !0
+  });
   String.b = !0;
   Array.b = !0;
   Date.prototype.g = Date;
@@ -10206,20 +10955,48 @@
   u.ia.Dg = u.Da;
   u.Da.Dg = u.ia;
   w.Vn = {}.toString;
-  Ba.Fo = { mandatory: { OfferToReceiveAudio: !1, OfferToReceiveVideo: !1 } };
-  U.yh = { name: 'ECDSA', namedCurve: 'P-256' };
-  U.Lm = { name: 'ECDSA', hash: { name: 'SHA-256' } };
+  Ba.Fo = {
+    mandatory: {
+      OfferToReceiveAudio: !1,
+      OfferToReceiveVideo: !1
+    }
+  };
+  U.yh = {
+    name: 'ECDSA',
+    namedCurve: 'P-256'
+  };
+  U.Lm = {
+    name: 'ECDSA',
+    hash: {
+      name: 'SHA-256'
+    }
+  };
   Ib.Ap = ['click-rail', 'drag-thumb', 'wheel', 'touch'];
   p.yb = !1;
   p.qn = new Map();
   p.Nf = 0;
   W.yb = !1;
-  Ua.Aa = p.Ha({ Ca: !1, delay: !1 });
+  Ua.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
   ra.Cc = 0;
   lc.channels = [
-    { name: 'ro', reliable: !0, ordered: !0 },
-    { name: 'ru', reliable: !0, ordered: !1 },
-    { name: 'uu', reliable: !1, ordered: !1 }
+    {
+      name: 'ro',
+      reliable: !0,
+      ordered: !0
+    },
+    {
+      name: 'ru',
+      reliable: !0,
+      ordered: !1
+    },
+    {
+      name: 'uu',
+      reliable: !1,
+      ordered: !1
+    }
   ];
   Z.Lj = 'application/x-www-form-urlencoded';
   Ma.eb = [
@@ -10443,7 +11220,7 @@
     'CZ',
     49.8,
     15.4,
-    "CÃ´te d'Ivoire",
+    "Côte d'Ivoire",
     'CI',
     7.5,
     -5.5,
@@ -10919,7 +11696,7 @@
     'RW',
     -1.9,
     29.8,
-    'RÃ©union',
+    'Réunion',
     'RE',
     -21.1,
     55.5,
@@ -11043,7 +11820,7 @@
     'SY',
     34.8,
     38.9,
-    'SÃ£o TomÃ© and PrÃ­ncipe',
+    'São Tomé and Príncipe',
     'ST',
     0.1,
     6.6,
@@ -11217,29 +11994,108 @@
     return a;
   })(this);
   q.qs = A.ka(1024);
-  Ia.Aa = p.Ha({ Ca: !1, delay: !1, nh: { bh: 2, sh: 1e4 } });
-  jb.Aa = p.Ha({ Ca: !1, delay: !1, nh: { bh: 10, sh: 900 } });
-  Za.Aa = p.Ha({ Ca: !1, delay: !1 });
-  va.Aa = p.Ha({ Ca: !1, delay: !1 });
-  Ha.Aa = p.Ha({ Ca: !1, delay: !1 });
-  Ka.Aa = p.Ha({ Ca: !1, delay: !1 });
-  fa.Aa = p.Ha({ Ca: !1, delay: !1 });
-  Fa.Aa = p.Ha({ Ca: !1, delay: !1, nh: { bh: 10, sh: 2e3 } });
-  $a.Aa = p.Ha({ Ca: !1, delay: !1 });
-  Ga.Aa = p.Ha({ Ca: !1, delay: !1 });
-  Ea.Aa = p.Ha({ Ca: !1, delay: !1 });
-  lb.Aa = p.Ha({ Ca: !1, delay: !1 });
+  Ia.Aa = p.Ha({
+    Ca: !1,
+    delay: !1,
+    nh: {
+      bh: 2,
+      sh: 1e4
+    }
+  });
+  jb.Aa = p.Ha({
+    Ca: !1,
+    delay: !1,
+    nh: {
+      bh: 10,
+      sh: 900
+    }
+  });
+  Za.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  va.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  Ha.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  Ka.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  fa.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  Fa.Aa = p.Ha({
+    Ca: !1,
+    delay: !1,
+    nh: {
+      bh: 10,
+      sh: 2e3
+    }
+  });
+  $a.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  Ga.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  Ea.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  lb.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
   Ya.Aa = p.Ha({});
-  Va.Aa = p.Ha({ Ca: !1, delay: !1, nh: { bh: 10, sh: 900 } });
+  Va.Aa = p.Ha({
+    Ca: !1,
+    delay: !1,
+    nh: {
+      bh: 10,
+      sh: 900
+    }
+  });
   Da.Aa = p.Ha({});
-  Ca.Aa = p.Ha({ Ca: !1, delay: !1 });
-  ma.Aa = p.Ha({ Ca: !1, delay: !1 });
-  kb.Aa = p.Ha({ Ca: !1, delay: !1 });
-  mb.Aa = p.Ha({ Ca: !1, delay: !1 });
-  La.Aa = p.Ha({ Ca: !1, delay: !1 });
-  Wa.Aa = p.Ha({ Ca: !1, delay: !1 });
-  Xa.Aa = p.Ha({ Ca: !1, delay: !1 });
-  Ja.Aa = p.Ha({ Ca: !1, delay: !1 });
+  Ca.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  ma.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  kb.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  mb.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  La.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  Wa.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  Xa.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
+  Ja.Aa = p.Ha({
+    Ca: !1,
+    delay: !1
+  });
   I.On = 0.17435839227423353;
   I.Nn = 5.934119456780721;
   ea.Ln = new $b([0, 0, 2, 1, 0, 0.35, 1, 0, 1, 0, 0.7, 1, 0, 0, 0, 1]);

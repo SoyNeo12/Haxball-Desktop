@@ -1,8 +1,20 @@
-const { app, BrowserWindow, session, shell, ipcMain, globalShortcut } = require('electron');
+const { app, BrowserWindow, session, shell, ipcMain, globalShortcut, protocol } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
-const crypto = require('crypto');
+
+// Register hxd Scheme
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'hxd',
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+      corsEnabled: true
+    }
+  }
+]);
 
 // const __hxdNoop = () => {};
 // console.log = __hxdNoop;
@@ -12,6 +24,8 @@ const crypto = require('crypto');
 
 // Pega versão do package.json ou do app
 const APP_VERSION = app.getVersion() || '1.0.0';
+
+const isDev = !app.isPackaged;
 
 // Define userData path único por versão para evitar conflitos
 const userDataPath = path.join(app.getPath('appData'), 'haxball-app', APP_VERSION);
@@ -27,45 +41,52 @@ app.commandLine.appendSwitch('disable-renderer-backgrounding');
 app.commandLine.appendSwitch('disable-background-timer-throttling');
 
 let mainWindow = null;
-let server = null;
 let currentZoomPercent = 100;
 
 const isWindows = process.platform === 'win32';
 
-// NOVO: Extração e carregamento de extensões melhorado
 function getExtensionPath() {
-  const extDir = path.join(app.getPath('userData'), 'extensions');
-
-  if (!fs.existsSync(extDir)) {
-    fs.mkdirSync(extDir, { recursive: true });
+  if (isDev) {
+    return path.join(__dirname, 'extensions');
   }
 
-  return extDir;
+  return path.join(process.resourcesPath, 'app.asar.unpacked', 'extensions');
 }
 
-function copyFolderRecursiveSync(source, target) {
-  if (!fs.existsSync(target)) {
-    fs.mkdirSync(target, { recursive: true });
-  }
+function getUserExtensionsPath() {
+  return path.join(app.getPath('userData'), 'extensions');
+}
+
+function copyFolderRecursive(source, target) {
+  if (!fs.existsSync(source)) return false;
+
+  fs.rmSync(target, { recursive: true, force: true });
+  fs.mkdirSync(target, { recursive: true });
 
   const files = fs.readdirSync(source);
 
-  files.forEach((file) => {
-    const sourcePath = path.join(source, file);
-    const targetPath = path.join(target, file);
-    const stat = fs.statSync(sourcePath);
+  for (const file of files) {
+    const src = path.join(source, file);
+    const dest = path.join(target, file);
+    const stat = fs.statSync(src);
 
     if (stat.isDirectory()) {
-      copyFolderRecursiveSync(sourcePath, targetPath);
+      copyFolderRecursive(src, dest);
     } else {
-      fs.copyFileSync(sourcePath, targetPath);
+      fs.copyFileSync(src, dest);
     }
-  });
+  }
+
+  return true;
 }
 
 function extractExtensions() {
   const extDestPath = getExtensionPath();
-  const extSourcePath = path.join(__dirname, 'extensions');
+  const isDev = !app.isPackaged;
+
+  const extSourcePath = isDev
+    ? path.join(__dirname, 'extensions')
+    : path.join(process.resourcesPath, 'app.asar.unpacked', 'extensions');
 
   console.log('[EXT] Extraindo extensões...');
   console.log('[EXT] Origem:', extSourcePath);
@@ -82,7 +103,7 @@ function extractExtensions() {
     }
 
     fs.mkdirSync(extDestPath, { recursive: true });
-    copyFolderRecursiveSync(extSourcePath, extDestPath);
+    copyFolderRecursive(extSourcePath, extDestPath);
 
     const manifestPath = path.join(extDestPath, 'manifest.json');
 
@@ -144,23 +165,54 @@ function processDirectoryRecursive(dir) {
 }
 
 async function loadExtensionSafely(extPath) {
-  if (!extPath || !fs.existsSync(extPath)) {
-    console.error('[EXT] Caminho inválido:', extPath);
+  const sourcePath = getExtensionPath();
+  const destPath = getUserExtensionsPath();
+
+  console.log('[EXT] Origem:', sourcePath);
+  console.log('[EXT] Destino:', destPath);
+
+  if (!copyFolderRecursiveSync(sourcePath, destPath)) {
+    console.error('[EXT] ❌ No se encontró carpeta extensions');
     return false;
   }
 
   try {
-    const loadedExt = await session.defaultSession.extensions.loadExtension(extPath, {
+    const ext = await session.defaultSession.extensions.loadExtension(destPath, {
       allowFileAccess: true
     });
 
-    console.log('[EXT] Extensão carregada:', loadedExt.name);
+    console.log('[EXT] Extensão carregada:', ext.name);
     return true;
   } catch (err) {
-    console.error('[EXT] Falha ao carregar extensão:');
-    console.error('[EXT] Mensagem:', err.message);
+    console.error('[EXT] Error cargando extensión:', err.message);
     return false;
   }
+}
+
+// HXD PROTOCOL (game-min OVERRIDE)
+function registerHxdProtocol() {
+  protocol.handle('hxd', async (request) => {
+    const url = new URL(request.url);
+    const host = url.host;
+
+    if (host === 'game-min.js') {
+      const filePath = path.join(getUserExtensionsPath(), 'game-min-original.js');
+
+      if (!fs.existsSync(filePath)) {
+        console.error('[HXD] game-min-original.js nao encontrado');
+        return new Response('Not found', { status: 404 });
+      }
+
+      const data = fs.readFileSync(filePath);
+
+      return new Response(data, {
+        status: 200,
+        headers: { 'Content-Type': 'application/javascript' }
+      });
+    }
+
+    return new Response('Not found', { status: 404 });
+  });
 }
 
 // Função para mostrar indicador de zoom
@@ -189,28 +241,34 @@ function showZoomIndicator(zoomPercent) {
   mainWindow.webContents.executeJavaScript(code).catch(function () {});
 }
 
-// ============================================
-// CRIPTOGRAFIA - Deriva chave do sistema
-// ============================================
-function deriveKey() {
-  const parts = [
-    'HXD',
-    'haxball-desktop-v1',
-    Buffer.from('aGF4YmFsbC1kZXNrdG9w').toString(),
-    'electron-protected',
-    '2024'
-  ];
-  return crypto.createHash('sha256').update(parts.join('|')).digest();
-}
-
-function deriveIV(filename) {
-  return crypto
-    .createHash('md5')
-    .update(filename + 'hxd-iv')
-    .digest();
-}
-
 app.whenReady().then(async function () {
+  protocol.handle('hxd', async (request) => {
+    const urlObj = new URL(request.url);
+    const host = urlObj.host;
+
+    console.log('[HXD] Host:', host);
+
+    if (host === 'game-min.js') {
+      const filePath = path.join(app.getPath('userData'), 'extensions', 'game-min-original.js');
+
+      if (!fs.existsSync(filePath)) {
+        console.error('[HXD] Archivo no encontrado:', filePath);
+        return new Response('Not found', { status: 404 });
+      }
+
+      const data = fs.readFileSync(filePath);
+
+      return new Response(data, {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/javascript'
+        }
+      });
+    }
+
+    return new Response('Not found', { status: 404 });
+  });
+
   autoUpdater.checkForUpdates();
 
   const extPath = extractExtensions();
@@ -227,18 +285,16 @@ app.whenReady().then(async function () {
     }
   }
 
-  // 🔎 Verificación REAL
   const extensions = session.defaultSession.extensions?.getAllExtensions() || {};
   const hasExtension = Object.keys(extensions).length > 0;
 
   if (!extensionLoaded || !hasExtension) {
     console.error('[EXT] ❌ Extensão não carregada. Abortando exibição da janela.');
-    return; // ❌ No crea la ventana
+    return;
   }
 
   console.log('[EXT] ✓ Todas as extensões carregadas corretamente');
 
-  // 🚀 Solo ahora creamos la ventana
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
@@ -254,20 +310,21 @@ app.whenReady().then(async function () {
   });
 
   mainWindow.setMenu(null);
-  mainWindow.loadURL('https://www.haxball.com/play');
 
   session.defaultSession.webRequest.onBeforeRequest(
     {
       urls: ['*://www.haxball.com/*/__cache_static__/g/game-min.js*']
     },
-    (details, callback) => {
-      console.log('[HOOK] Substituindo game-min.js:', details.url);
+    (_details, callback) => {
+      console.log('[HOOK] Redirigiendo game-min.js → hxd://game-min.js');
 
       callback({
-        redirectURL: 'file://' + path.join(__dirname, 'extensions/game-min-original.js')
+        redirectURL: 'hxd://game-min.js'
       });
     }
   );
+
+  mainWindow.loadURL('https://www.haxball.com/play');
 
   globalShortcut.register('Ctrl+E', function () {
     if (mainWindow) {
@@ -343,7 +400,6 @@ app.on('window-all-closed', function () {
 
 app.on('will-quit', function () {
   globalShortcut.unregisterAll();
-  if (server) server.close();
 });
 
 // Single instance
@@ -368,10 +424,8 @@ ipcMain.handle('get-version', async () => {
   return APP_VERSION;
 });
 
-ipcMain.handle('open-external', async (event, url) => {
-  if (url) {
-    shell.openExternal(url);
-  }
+ipcMain.handle('open-external', async (_event, url) => {
+  if (url) shell.openExternal(url);
 });
 
 ipcMain.handle('updater-check', async () => {

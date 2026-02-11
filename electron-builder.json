@@ -1,6 +1,6 @@
 {
   "appId": "com.haxballapp.enhanced",
-  "productName": "HaxBall Desktop - #continuação",
+  "productName": "HaxBall Desktop",
   "publish": [
     {
       "provider": "github",
@@ -54,12 +54,12 @@
     "menuCategory": true
   },
   "portable": {
-    "artifactName": "${productName}-${version}-portable.${ext}"
+    "artifactName": "${productName}-${version}-x64.${ext}"
   },
   "linux": {
     "target": [
       {
-        "target": "AppImage",
+        "target": "deb",
         "arch": ["x64"]
       }
     ],
@@ -90,5 +90,6 @@
     "main": "main.js"
   },
   "compression": "normal",
-  "asar": true
+  "asar": true,
+  "asarUnpack": ["extensions/**"]
 }
